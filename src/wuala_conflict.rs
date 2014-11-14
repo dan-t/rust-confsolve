@@ -1,7 +1,7 @@
 use file_conflict::{OrigFileName, Details};
 use parser::{Parser, ParseError};
 
-// parses a wuala file conflict enoded in the file name in the form:
+// parses a wuala file conflict encoded in the file name in the form:
 //
 //    '<base_name> (conflicting version <version> from <host>).<extension>'
 //
@@ -19,7 +19,11 @@ pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 
    try!(parser.skip("(conflicting version "));
    let version = try!(parser.take_uint());
-   try!(parser.skip(" from "));
+
+   try!(parser.skip(" from ")
+              .or(parser.skip(" from"))
+              .or(Ok(true)));
+
    let host = try!(parser.take_while(|c| c != ')'));
    try!(parser.skip(")"));
       
@@ -30,4 +34,26 @@ pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 
    let details = format!("Version {} from {}", version, host);
    Ok((base_name, details))
+}
+
+#[test]
+fn tests()
+{
+   test_str("original (conflicting version 1 from machine)", "original", "Version 1 from machine");
+   test_str("x_original (conflicting version 5 from blub).txt", "x_original.txt", "Version 5 from blub");
+   test_str("x_original (conflicting version 5 from ).txt", "x_original.txt", "Version 5 from ");
+   test_str("x_original (conflicting version 5 from).txt", "x_original.txt", "Version 5 from ");
+   test_str("x_original (conflicting version 5).txt", "x_original.txt", "Version 5 from ");
+}
+
+fn test_str(file_name: &str, orig_name: &str, details: &str)
+{
+   match parse(file_name) {
+      Ok((name, det)) => {
+         assert_eq!(name, orig_name.to_string());
+         assert_eq!(det , details.to_string());
+      }
+
+      Err(err) => assert!(false, err)
+   }
 }
