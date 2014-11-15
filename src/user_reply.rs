@@ -1,8 +1,9 @@
 use std::iter::Iterator;
+use parser::Parser;
 
 pub type FileNum = uint;
 
-#[deriving(Show)]
+#[deriving(Show, PartialEq, Eq)]
 pub enum UserReply 
 {
    TakeFile(FileNum),
@@ -21,16 +22,21 @@ pub fn parse(input: &String) -> Option<UserReply>
       return None;
    }
 
-   let num_chars = input.len();
-   let mut chars = input.chars()
-                        .skip_while(|c| c.is_whitespace())
-                        .map(|c| c.to_lowercase());
+   let lowercase_input = input.chars()
+                              .map(|c| c.to_lowercase())
+                              .collect::<String>();
 
-   match chars.next() {
-      Some(c) => {
+   let mut parser = Parser::new(lowercase_input.as_slice());
+   parser.skip_whitespace();
+   match parser.take_char() {
+      Err(..) => None,
+
+      Ok(c)   => {
+         parser.skip_whitespace();
+         let only_whitespace_left = parser.eof();
+         let uints = take_uints(&mut parser);
          match c {
             't' => {
-               let uints = parse_uints(&chars.collect::<String>());
                match uints.len() {
                   1 => Some(TakeFile(uints[0])),
                   _ => None
@@ -38,7 +44,6 @@ pub fn parse(input: &String) -> Option<UserReply>
             }
 
             'd' => {
-               let uints = parse_uints(&chars.collect::<String>());
                match uints.len() {
                   0 => Some(ShowDiff),
                   1 => Some(ShowDiffWith(uints[0])),
