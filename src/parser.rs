@@ -91,35 +91,17 @@ impl<'a> Parser<'a>
       Ok(string)
    }
 
-   pub fn eof(&self) -> bool
-   {
-      self.stream.eof()
-   }
+   pub fn eof(&self) -> bool { self.stream.eof() }
 
-   fn take_char(&mut self) -> char 
-   {
-      self.stream.take_char()
-   }
+   fn take_char(&mut self) -> char { self.stream.take_char() }
 
-   fn next_char(&self) -> char
-   {
-      self.stream.next_char()
-   }
+   fn next_char(&self) -> char { self.stream.next_char() }
 
-   fn push_pos(&mut self)
-   {
-      self.stream.push_pos();
-   }
+   fn push_pos(&mut self) { self.stream.push_pos(); }
 
-   fn pop_pos(&mut self)
-   {
-      self.stream.pop_pos();
-   }
+   fn pop_pos(&mut self) { self.stream.pop_pos(); }
 
-   fn pop_and_reset_pos(&mut self)
-   {
-      self.stream.pop_and_reset_pos();
-   }
+   fn pop_and_reset_pos(&mut self) { self.stream.pop_and_reset_pos(); }
 }
 
 struct StrStream<'a>
@@ -136,10 +118,7 @@ impl<'a> StrStream<'a>
       StrStream {pos: 0u, input: input, pos_stack: Vec::new()}
    }
 
-   fn eof(&self) -> bool
-   {
-      self.pos >= self.input.len()
-   }
+   fn eof(&self) -> bool { self.pos >= self.input.len() }
 
    fn take_char(&mut self) -> char 
    {
@@ -148,23 +127,11 @@ impl<'a> StrStream<'a>
       return range.ch;
    }
 
-   fn next_char(&self) -> char
-   {
-      self.input.char_at(self.pos)
-   }
+   fn next_char(&self) -> char { self.input.char_at(self.pos) }
 
-   fn push_pos(&mut self)
-   {
-      self.pos_stack.push(self.pos);
-   }
+   fn push_pos(&mut self) { self.pos_stack.push(self.pos); }
 
-   fn pop_pos(&mut self)
-   {
-      self.pos_stack.pop();
-   }
+   fn pop_pos(&mut self) { self.pos_stack.pop(); }
 
-   fn pop_and_reset_pos(&mut self)
-   {
-      self.pos_stack.pop().map(|p| self.pos = p);
-   }
+   fn pop_and_reset_pos(&mut self) { self.pos_stack.pop().map(|p| self.pos = p); }
 }
