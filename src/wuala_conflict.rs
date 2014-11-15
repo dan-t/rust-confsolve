@@ -41,6 +41,7 @@ pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 }
 
 #[test]
+#[cfg(test)]
 fn tests()
 {
    test_str("original (conflicting version 1 from machine)", "original", "Version 1 from machine");
@@ -50,12 +51,14 @@ fn tests()
    test_str("x_original (conflicting version 5).txt", "x_original.txt", "Version 5 from ");
 }
 
+#[cfg(test)]
 fn test_str(file_name: &str, orig_name: &str, details: &str)
 {
+   println!("test: {}", file_name);
    match parse(file_name) {
       Ok((name, det)) => {
-         assert_eq!(name, orig_name.to_string());
-         assert_eq!(det , details.to_string());
+         assert_eq!(orig_name.to_string(), name);
+         assert_eq!(details.to_string()  , det);
       }
 
       Err(err) => assert!(false, err)

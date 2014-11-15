@@ -52,38 +52,61 @@ pub fn parse(input: &String) -> Option<UserReply>
                }
             }
 
-            'm'      if num_chars == 1 => Some(MoveToTrash),
-            's'      if num_chars == 1 => Some(Skip),
-            'q'      if num_chars == 1 => Some(Quit),
-            'h' |'?' if num_chars == 1 => Some(Help),
+
+            'm'      if only_whitespace_left => Some(MoveToTrash),
+            's'      if only_whitespace_left => Some(Skip),
+            'q'      if only_whitespace_left => Some(Quit),
+            'h' |'?' if only_whitespace_left => Some(Help),
 
             _ => None,
          }
       }
-
-      None => None,
    }
 }
 
-fn parse_uints(string: &String) -> Vec<uint> 
+fn take_uints(parser: &mut Parser) -> Vec<uint>
 {
    let mut uints  = Vec::new();
-   let mut digits = String::new();
-
-   for c in string.chars() {
-      if c.is_digit() {
-         digits.push(c);
+   while ! parser.eof() {
+      parser.skip_whitespace();
+      match parser.take_uint() {
+         Ok(uint) => uints.push(uint),
+         Err(..)  => {}
       }
-      else if ! digits.is_empty() {
-         from_str::<uint>(digits.as_slice()).map(|u| uints.push(u));
-         digits.clear();
-         continue;
-      }
-   }
-
-   if ! digits.is_empty() {
-      from_str::<uint>(digits.as_slice()).map(|u| uints.push(u));
    }
 
    uints
+}
+
+#[test]
+#[cfg(test)]
+fn tests()
+{
+   test_str("t"       , None);
+   test_str("t1"      , Some(TakeFile(1)));
+   test_str(" t1"     , Some(TakeFile(1)));
+   test_str(" t  1"   , Some(TakeFile(1)));
+   test_str(" t  1  " , Some(TakeFile(1)));
+   test_str(" t  1  2", None);
+   test_str("d12"     , Some(ShowDiffWith(12)));
+   test_str("d"       , Some(ShowDiff));
+   test_str("d1 2"    , Some(ShowDiffBetween(1, 2)));
+   test_str("d1    2" , Some(ShowDiffBetween(1, 2)));
+   test_str("d  1  2" , Some(ShowDiffBetween(1, 2)));
+   test_str("D  1  2" , Some(ShowDiffBetween(1, 2)));
+   test_str("  m  "   , Some(MoveToTrash));
+   test_str("m  "     , Some(MoveToTrash));
+   test_str("M  "     , Some(MoveToTrash));
+   test_str("M  1"    , None);
+   test_str("s"       , Some(Skip));
+   test_str("q"       , Some(Quit));
+   test_str("h"       , Some(Help));
+   test_str("?"       , Some(Help));
+}
+
+#[cfg(test)]
+fn test_str(input: &str, reply: Option<UserReply>)
+{
+   println!("test: {}", input);
+   assert_eq!(parse(&input.to_string()), reply);
 }
