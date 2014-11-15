@@ -9,6 +9,10 @@ use parser::{Parser, ParseError};
 //
 //    'x_original (conflicting version 5 from blub).txt'
 //
+// would return:
+//
+//    Ok("x_original.txt", "Version 5 from blub")
+//
 pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 {
    let mut parser = Parser::new(file_name);
