@@ -1,6 +1,6 @@
 pub struct Parser<'a>
 {
-   stream: Stream<'a>
+   strm: Stream<'a>
 }
 
 pub type ParseError = String;
@@ -9,7 +9,7 @@ impl<'a> Parser<'a>
 {
    pub fn new(input: &str) -> Parser
    {
-      Parser {stream: Stream::new(input)}
+      Parser {strm: Stream::new(input)}
    }
 
    pub fn skip(&mut self, str: &str) -> Result<(), ParseError>
@@ -19,15 +19,15 @@ impl<'a> Parser<'a>
       }
 
       self.push_pos();
-      let mut str_stream = Stream::new(str);
-      while ! self.stream.eof() && ! str_stream.eof() {
-         if self.stream.next_char() != str_stream.next_char() {
+      let mut strm = Stream::new(str);
+      while ! self.eof() && ! strm.eof() {
+         if self.next_char() != strm.next_char() {
             self.pop_and_reset_pos();
             return Err(format!("Couldn't skip str '{}'!", str));
          }
 
-         self.stream.take_char();
-         str_stream.take_char();
+         self.take_char_();
+         strm.take_char();
       }
 
       self.pop_pos();
@@ -37,7 +37,7 @@ impl<'a> Parser<'a>
    pub fn skip_while(&mut self, test: |char| -> bool)
    {
       while ! self.eof() && test(self.next_char()) {
-         self.take_char();
+         self.take_char_();
       }
    }
 
@@ -54,7 +54,7 @@ impl<'a> Parser<'a>
             return Ok(string);
          }
 
-         string.push(self.take_char());
+         string.push(self.take_char_());
       }
 
       Ok(string)
@@ -65,7 +65,7 @@ impl<'a> Parser<'a>
       self.push_pos();
       let mut digits = String::new();
       while ! self.eof() && self.next_char().is_digit() {
-         digits.push(self.take_char());
+         digits.push(self.take_char_());
       }
 
       match from_str::<uint>(digits.as_slice()) {
@@ -81,27 +81,36 @@ impl<'a> Parser<'a>
       }
    }
 
+   pub fn take_char(&mut self) -> Result<char, ParseError>
+   {
+      if self.eof() {
+         return Err("Couldn't take char!".to_string());
+      }
+
+      Ok(self.take_char_())
+   }
+
    pub fn take_till_eof(&mut self) -> Result<String, ParseError>
    {
       let mut string = String::new();
       while ! self.eof() {
-         string.push(self.take_char());
+         string.push(self.take_char_());
       }
 
       Ok(string)
    }
 
-   pub fn eof(&self) -> bool { self.stream.eof() }
+   pub fn eof(&self) -> bool { self.strm.eof() }
 
-   fn take_char(&mut self) -> char { self.stream.take_char() }
+   fn take_char_(&mut self) -> char { self.strm.take_char() }
 
-   fn next_char(&self) -> char { self.stream.next_char() }
+   fn next_char(&self) -> char { self.strm.next_char() }
 
-   fn push_pos(&mut self) { self.stream.push_pos(); }
+   fn push_pos(&mut self) { self.strm.push_pos(); }
 
-   fn pop_pos(&mut self) { self.stream.pop_pos(); }
+   fn pop_pos(&mut self) { self.strm.pop_pos(); }
 
-   fn pop_and_reset_pos(&mut self) { self.stream.pop_and_reset_pos(); }
+   fn pop_and_reset_pos(&mut self) { self.strm.pop_and_reset_pos(); }
 }
 
 struct Stream<'a>
