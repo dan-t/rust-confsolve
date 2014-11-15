@@ -9,8 +9,6 @@ use std::path::Path;
 use std::io;
 use std::os;
 use file_system::walk_files;
-//use user_reply;
-use wuala_conflict::parse;
 
 mod file_system;
 mod user_reply;
