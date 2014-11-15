@@ -12,7 +12,7 @@ impl<'a> Parser<'a>
       Parser {stream: Stream::new(input)}
    }
 
-   pub fn skip(&mut self, str: &str) -> Result<bool, ParseError>
+   pub fn skip(&mut self, str: &str) -> Result<(), ParseError>
    {
       if str.is_empty() {
          return Err("Couldn't skip empty str!".to_string());
@@ -31,7 +31,7 @@ impl<'a> Parser<'a>
       }
 
       self.pop_pos();
-      Ok(true)
+      Ok(())
    }
 
    pub fn skip_while(&mut self, test: |char| -> bool)

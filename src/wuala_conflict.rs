@@ -26,7 +26,7 @@ pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 
    try!(parser.skip(" from ")
               .or(parser.skip(" from"))
-              .or(Ok(true)));
+              .or(Ok(())));
 
    let host = try!(parser.take_while(|c| c != ')'));
    try!(parser.skip(")"));
