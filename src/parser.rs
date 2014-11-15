@@ -1,6 +1,6 @@
 pub struct Parser<'a>
 {
-   stream: StrStream<'a>
+   stream: Stream<'a>
 }
 
 pub type ParseError = String;
@@ -9,7 +9,7 @@ impl<'a> Parser<'a>
 {
    pub fn new(input: &str) -> Parser
    {
-      Parser {stream: StrStream::new(input)}
+      Parser {stream: Stream::new(input)}
    }
 
    pub fn skip(&mut self, str: &str) -> Result<bool, ParseError>
@@ -19,7 +19,7 @@ impl<'a> Parser<'a>
       }
 
       self.push_pos();
-      let mut str_stream = StrStream::new(str);
+      let mut str_stream = Stream::new(str);
       while ! self.stream.eof() && ! str_stream.eof() {
          if self.stream.next_char() != str_stream.next_char() {
             self.pop_and_reset_pos();
@@ -104,18 +104,18 @@ impl<'a> Parser<'a>
    fn pop_and_reset_pos(&mut self) { self.stream.pop_and_reset_pos(); }
 }
 
-struct StrStream<'a>
+struct Stream<'a>
 {
    pos      :  uint,
    input    :  &'a str,
    pos_stack:  Vec<uint>
 }
 
-impl<'a> StrStream<'a>
+impl<'a> Stream<'a>
 {
-   fn new(input: &str) -> StrStream
+   fn new(input: &str) -> Stream
    {
-      StrStream {pos: 0u, input: input, pos_stack: Vec::new()}
+      Stream {pos: 0u, input: input, pos_stack: Vec::new()}
    }
 
    fn eof(&self) -> bool { self.pos >= self.input.len() }
