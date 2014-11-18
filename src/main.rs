@@ -15,6 +15,9 @@ extern crate docopt_macros;
 use std::path::Path;
 use std::io;
 use std::io::IoResult;
+use std::io::IoError;
+use std::io::IoErrorKind::{OtherIoError};
+use std::io::fs::mkdir_recursive;
 use std::os;
 
 use file_conflict::{
@@ -26,7 +29,17 @@ use file_conflict::{
    ConflictingFile
 };
 
-use user_reply::UserReply;
+use user_reply::{
+   UserReply,
+   TakeFile,
+   MoveToTrash,
+   ShowDiff,
+   ShowDiffWith,
+   ShowDiffBetween,
+   Skip,
+   Quit,
+   Help
+};
 
 mod file_system;
 mod user_reply;
@@ -56,45 +69,46 @@ fn main()
 
 fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> IoResult<()>
 {
-   let confs = try!(file_conflict::find(conf_type, start_dir));
-   for c in confs.iter() {
-      try!(handle_conflict(c));
-   }
-
-   Ok(())
-}
-
-fn handle_conflict(conf: &Conflict) -> IoResult<()>
-{
-//   if ! conf.original_path.is_file() {
-//      println!("Found conflicts for '{}', but the file itself is missing! Skipping it.", conf.original_path.display());
-//      return Ok(());
-//   }
-
-   println!("{}", conf);
-   print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");
    let mut stdin = io::stdin();
-   loop {
-      let line = try!(stdin.read_line());
-      println!("line: {}", line);
-      let opt_reply = user_reply::parse(&line);
-      println!("reply: {}", opt_reply);
-      match opt_reply {
-         Some(reply)
-            if user_reply::valid(reply, conf.conflicting_files.len()) => {
-               try!(execute_reply(reply));
-               break; 
+   let confs = try!(file_conflict::find(conf_type, start_dir));
+   for conf in confs.iter() {
+      println!("\n{}", conf);
+      loop {
+         print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");
+         let mut line = try!(stdin.read_line());
+         match user_reply::parse(&line) {
+            Some(reply) if user_reply::valid(reply, conf.conflicting_files.len()) => {
+               match reply {
+                  TakeFile(_) => {
+                  }
+
+                  MoveToTrash => {
+                  }
+
+                  ShowDiff => {
+                  }
+
+                  ShowDiffWith(_) => {
+                  }
+
+                  ShowDiffBetween(..) => {
+                  }
+
+                  Skip => { break; }
+                  Quit => { return Ok(()); }
+                  Help => try!(print_runtime_help())
+               }
             }
 
-         Some(_) | None => { println!("Invalid user input!"); }
+            Some(_) | None => {
+               // remove newline at end of line
+               line.pop();
+               println!("\nInvalid user input: '{}' !\n", line);
+            }
+         }
       }
    }
 
-   Ok(())
-}
-
-fn execute_reply(reply: UserReply) -> IoResult<()>
-{
    Ok(())
 }
 
@@ -102,7 +116,16 @@ fn execute_reply(reply: UserReply) -> IoResult<()>
 /// conflicting files are put into.
 fn trash_dir() -> IoResult<Path>
 {
-   Ok(Path::new(""))
+   let mut dir = match appdirs::cache("confsolve") {
+      Some(path) => path,
+      None => {
+         return Err(IoError {kind: OtherIoError, desc: "Couldn't read home directory", detail: None});
+      }
+   };
+
+   dir.push("trash");
+   try!(mkdir_recursive(&dir, io::USER_RWX));
+   Ok(dir)
 }
 
 fn print_runtime_help() -> IoResult<()>
