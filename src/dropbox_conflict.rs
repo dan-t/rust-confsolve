@@ -3,15 +3,15 @@ use parser::{Parser, ParseError};
 
 // Parses a wuala file conflict encoded in the file name in the form:
 //
-//    `<base_name> (conflicting version <version> from <host>).<extension>`
+//    '<base_name> (conflicting version <version> from <host>).<extension>'
 //
 // e.g: 
 //
-//    `x_original (conflicting version 5 from blub).txt`
+//    'x_original (conflicting version 5 from blub).txt'
 //
 // would return:
 //
-//    `Ok("x_original.txt", "Version 5 from blub")`
+//    Ok("x_original.txt", "Version 5 from blub")
 //
 pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 {

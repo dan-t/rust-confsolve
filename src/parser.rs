@@ -1,3 +1,6 @@
+use stream::Stream;
+use std::io;
+
 pub struct Parser<'a>
 {
    strm: Stream<'a>
@@ -12,6 +15,8 @@ impl<'a> Parser<'a>
       Parser {strm: Stream::new(input)}
    }
 
+   pub fn eof(&self) -> bool { self.strm.eof() }
+
    pub fn skip(&mut self, str: &str) -> Result<(), ParseError>
    {
       if str.is_empty() {
@@ -21,13 +26,13 @@ impl<'a> Parser<'a>
       self.push_pos();
       let mut strm = Stream::new(str);
       while ! self.eof() && ! strm.eof() {
-         if self.next_char() != strm.next_char() {
+         if self.next_char_or_fail() != strm.next_char_or_fail() {
             self.pop_and_reset_pos();
             return Err(format!("Couldn't skip str '{}'!", str));
          }
 
-         self.take_char_();
-         strm.take_char();
+         self.take_char_or_fail();
+         strm.take_char_or_fail();
       }
 
       self.pop_pos();
@@ -36,8 +41,8 @@ impl<'a> Parser<'a>
 
    pub fn skip_while(&mut self, test: |char| -> bool)
    {
-      while ! self.eof() && test(self.next_char()) {
-         self.take_char_();
+      while ! self.eof() && test(self.next_char_or_fail()) {
+         self.take_char_or_fail();
       }
    }
 
@@ -50,11 +55,11 @@ impl<'a> Parser<'a>
    {
       let mut string = String::new();
       while ! self.eof() {
-         if ! test(self.next_char()) {
+         if ! test(self.next_char_or_fail()) {
             return Ok(string);
          }
 
-         string.push(self.take_char_());
+         string.push(self.take_char_or_fail());
       }
 
       Ok(string)
@@ -64,8 +69,8 @@ impl<'a> Parser<'a>
    {
       self.push_pos();
       let mut digits = String::new();
-      while ! self.eof() && self.next_char().is_digit() {
-         digits.push(self.take_char_());
+      while ! self.eof() && self.next_char_or_fail().is_digit() {
+         digits.push(self.take_char_or_fail());
       }
 
       match from_str::<uint>(digits.as_slice()) {
@@ -87,24 +92,26 @@ impl<'a> Parser<'a>
          return Err("Couldn't take char!".to_string());
       }
 
-      Ok(self.take_char_())
+      Ok(self.take_char_or_fail())
    }
 
    pub fn take_till_eof(&mut self) -> Result<String, ParseError>
    {
       let mut string = String::new();
       while ! self.eof() {
-         string.push(self.take_char_());
+         string.push(self.take_char_or_fail());
       }
 
       Ok(string)
    }
 
-   pub fn eof(&self) -> bool { self.strm.eof() }
+   pub fn consumed(&self) -> &str { self.strm.consumed() }
 
-   fn take_char_(&mut self) -> char { self.strm.take_char() }
+   pub fn unconsumed(&self) -> &str { self.strm.unconsumed() }
 
-   fn next_char(&self) -> char { self.strm.next_char() }
+   fn take_char_or_fail(&mut self) -> char { self.strm.take_char_or_fail() }
+
+   fn next_char_or_fail(&self) -> char { self.strm.next_char_or_fail() }
 
    fn push_pos(&mut self) { self.strm.push_pos(); }
 
@@ -113,34 +120,62 @@ impl<'a> Parser<'a>
    fn pop_and_reset_pos(&mut self) { self.strm.pop_and_reset_pos(); }
 }
 
-struct Stream<'a>
+#[test]
+#[cfg(test)]
+fn tests()
 {
-   pos      :  uint,
-   input    :  &'a str,
-   pos_stack:  Vec<uint>
+   match parser_tests() {
+      Ok(_)    => {}
+      Err(err) => {
+         let mut stderr = io::stderr();
+         let _ = writeln!(stderr, "Parser test error: {}", err);
+      }
+   }
 }
 
-impl<'a> Stream<'a>
+#[cfg(test)]
+fn parser_tests() -> Result<(), ParseError>
 {
-   fn new(input: &str) -> Stream
-   {
-      Stream {pos: 0u, input: input, pos_stack: Vec::new()}
-   }
+   let mut parser = Parser::new("ssss 21 qqq aswe ");
+   assert_eq!(parser.consumed(), "");
+   assert_eq!(parser.unconsumed(), "ssss 21 qqq aswe ");
 
-   fn eof(&self) -> bool { self.pos >= self.input.len() }
+   parser.skip_whitespace();
+   assert_eq!(parser.consumed(), "");
+   assert_eq!(parser.unconsumed(), "ssss 21 qqq aswe ");
 
-   fn take_char(&mut self) -> char 
-   {
-      let range = self.input.char_range_at(self.pos);
-      self.pos = range.next;
-      return range.ch;
-   }
+   try!(parser.skip("ss"));
+   assert_eq!(parser.consumed(), "ss");
+   assert_eq!(parser.unconsumed(), "ss 21 qqq aswe ");
 
-   fn next_char(&self) -> char { self.input.char_at(self.pos) }
+   try!(parser.skip("ss"));
+   assert_eq!(parser.consumed(), "ssss");
+   assert_eq!(parser.unconsumed(), " 21 qqq aswe ");
 
-   fn push_pos(&mut self) { self.pos_stack.push(self.pos); }
+   parser.skip_whitespace();
+   assert_eq!(parser.consumed(), "ssss ");
+   assert_eq!(parser.unconsumed(), "21 qqq aswe ");
 
-   fn pop_pos(&mut self) { self.pos_stack.pop(); }
+   assert_eq!(try!(parser.take_uint()), 21u);
+   assert_eq!(parser.consumed(), "ssss 21");
+   assert_eq!(parser.unconsumed(), " qqq aswe ");
 
-   fn pop_and_reset_pos(&mut self) { self.pos_stack.pop().map(|p| self.pos = p); }
+   parser.skip_whitespace();
+   assert_eq!(try!(parser.take_while(|c| c == 'q')), "qqq".to_string());
+   assert_eq!(parser.consumed(), "ssss 21 qqq");
+   assert_eq!(parser.unconsumed(), " aswe ");
+
+   parser.skip_while(|c| c.is_whitespace());
+   assert_eq!(parser.consumed(), "ssss 21 qqq ");
+   assert_eq!(parser.unconsumed(), "aswe ");
+
+   assert_eq!(try!(parser.take_char()), 'a');
+   assert_eq!(parser.consumed(), "ssss 21 qqq a");
+   assert_eq!(parser.unconsumed(), "swe ");
+
+   assert_eq!(parser.eof(), false);
+   assert_eq!(try!(parser.take_till_eof()), "swe ".to_string());
+   assert_eq!(parser.eof(), true);
+
+   Ok(())
 }

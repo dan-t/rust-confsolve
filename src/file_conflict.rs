@@ -1,40 +1,57 @@
-use std::fmt::{Show, Formatter, FormatError};
+use std::io::IoResult;
+use std::collections::HashMap;
+use std::collections::hash_map::{Entry, Occupied, Vacant};
+use std::vec::Vec;
 
-// the file name of the original file,
-// without the details of the conflict
-pub type OrigFileName = String;
+use file_conflict_types::{
+   OrigFileName,
+   Details
+};
 
-// description of the details of the conflict
-pub type Details = String;
+pub use file_conflict_types::{
+   Conflict,
+   ConflictingFile
+};
 
-// the details and the path of one conflicting file
-pub struct ConflictingFile
+use file_system::walk_files;
+use wuala_conflict;
+use dropbox_conflict;
+
+pub enum ConflictType
 {
-   details:  String,
-   path   :  Path
+   Wuala,
+   Dropbox
 }
 
-// one conflict with all of its conflicting files
-pub struct Conflict
+pub fn find(conf_type: ConflictType, start_dir: &Path) -> IoResult<Vec<Conflict>>
 {
-   original_path    :  Path,
-   conflicting_files:  Vec<ConflictingFile>
-}
+   let parse = match conf_type {
+      Wuala   => wuala_conflict::parse,
+      Dropbox => dropbox_conflict::parse
+   };
 
-impl Show for ConflictingFile
-{
-   fn fmt(&self, f: &mut Formatter) -> Result<(), FormatError>
-   {
-      write!(f, "ConflictingFile (details: {}, path: {})",
-             self.details, self.path.display())
+   let mut files = try!(walk_files(start_dir));
+   let mut confs_by_orig: HashMap<Path, Vec<ConflictingFile>> = HashMap::new();
+   for file in files {
+      match parse(file.filename_str().unwrap()) {
+         Err(..) => {}
+
+         Ok((orig, details)) => {
+            let mut orig_file = file.clone();
+            orig_file.set_filename(orig);
+            let conf = ConflictingFile {details: details, path: file.clone()};
+            match confs_by_orig.entry(orig_file) {
+               Occupied(mut entry) => entry.get_mut().push(conf),
+               Vacant(entry)       => { entry.set(Vec::from_elem(1, conf)); }
+            }
+         }
+      }
    }
-}
 
-impl Show for Conflict
-{
-   fn fmt(&self, f: &mut Formatter) -> Result<(), FormatError>
-   {
-      write!(f, "Conflict (original_path: {}, conflicting_files: {})",
-             self.original_path.display(), self.conflicting_files)
+   let mut confs = Vec::new();
+   for (orig, conf) in confs_by_orig.into_iter() {
+      confs.push(Conflict {original_path: orig, conflicting_files: conf});
    }
+
+   Ok(confs)
 }

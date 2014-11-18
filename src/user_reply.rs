@@ -33,7 +33,7 @@ pub fn parse(input: &String) -> Option<UserReply>
 
       Ok(c)   => {
          parser.skip_whitespace();
-         let only_whitespace_left = parser.eof();
+         let nothing_left = parser.eof();
          let uints = take_uints(&mut parser);
          match c {
             't' => {
@@ -52,16 +52,39 @@ pub fn parse(input: &String) -> Option<UserReply>
                }
             }
 
-
-            'm'      if only_whitespace_left => Some(MoveToTrash),
-            's'      if only_whitespace_left => Some(Skip),
-            'q'      if only_whitespace_left => Some(Quit),
-            'h' |'?' if only_whitespace_left => Some(Help),
+            'm'      if nothing_left => Some(MoveToTrash),
+            's'      if nothing_left => Some(Skip),
+            'q'      if nothing_left => Some(Quit),
+            'h' |'?' if nothing_left => Some(Help),
 
             _ => None,
          }
       }
    }
+}
+
+pub fn valid(reply: UserReply, num_confs: uint) -> bool
+{
+   match reply {
+      TakeFile(num)
+         if ! valid_file_num(num, num_confs)
+         => false,
+
+      ShowDiffWith(num) 
+         if ! valid_file_num(num, num_confs) 
+         => false,
+
+      ShowDiffBetween(num1, num2) 
+         if ! valid_file_num(num1, num_confs) || ! valid_file_num(num2, num_confs)
+         => false,
+
+      _ => true
+   }
+}
+
+fn valid_file_num(file_num: uint, num_confs: uint) -> bool
+{
+   file_num > 0 && file_num <= num_confs
 }
 
 fn take_uints(parser: &mut Parser) -> Vec<uint>
@@ -71,7 +94,7 @@ fn take_uints(parser: &mut Parser) -> Vec<uint>
       parser.skip_whitespace();
       match parser.take_uint() {
          Ok(uint) => uints.push(uint),
-         Err(..)  => {}
+         Err(..)  => break
       }
    }
 
@@ -100,6 +123,7 @@ fn tests()
    test_str("M  1"    , None);
    test_str("s"       , Some(Skip));
    test_str("q"       , Some(Quit));
+   test_str("qq"      , None);
    test_str("h"       , Some(Help));
    test_str("?"       , Some(Help));
 }
