@@ -70,6 +70,10 @@ pub fn valid(reply: UserReply, num_confs: uint) -> bool
          if ! valid_file_num(num, num_confs)
          => false,
 
+      ShowDiff
+         if num_confs != 1
+         => false,
+
       ShowDiffWith(num) 
          if ! valid_file_num(num, num_confs) 
          => false,
