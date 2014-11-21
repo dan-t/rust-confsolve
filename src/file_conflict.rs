@@ -20,12 +20,14 @@ use wuala_conflict;
 use dropbox_conflict;
 use app_result::{AppResult, AppError};
 
+/// The kind of conflicts to search for and to resolve.
 pub enum ConflictType
 {
    Wuala,
    Dropbox
 }
 
+/// Finds all conflicts of type `conf_type` in the directory hierarchy starting at `start_dir`.
 pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict>>
 {
    let parse = match conf_type {
