@@ -251,8 +251,7 @@ Runtime Options:
 
    (Q)uit            => By pressing 'q', the application is quit.
 
-   (H)elp            => By pressing 'h', this help is printed.
-", dir_str, dir_str);
+   (H)elp            => By pressing 'h', this help is printed.\n", dir_str, dir_str);
 
    Ok(())
 }
