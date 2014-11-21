@@ -106,12 +106,13 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> IoResult<()>
          continue;
       }
 
+      let num_conf_files = conf.conflicting_files.len();
       println!("\n{}", conf);
       loop {
          print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");
          let mut line = try!(stdin.read_line());
-         match user_reply::parse(&line) {
-            Some(reply) if user_reply::valid(reply, conf.conflicting_files.len()) => {
+         match user_reply::parse(&line, num_conf_files) {
+            Some(reply) => {
                match reply {
                   TakeFile(num) => {
                      let ref take_file = conf.conflicting_files[num - 1].path;
@@ -150,7 +151,7 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> IoResult<()>
                }
             }
 
-            Some(_) | None => {
+            None => {
                // remove newline at end of line
                line.pop();
                println!("\nInvalid user input: '{}' !\n", line);

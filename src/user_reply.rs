@@ -16,15 +16,15 @@ pub enum UserReply
    Help
 }
 
-pub fn parse(input: &String) -> Option<UserReply> 
+pub fn parse(input: &String, num_conf_files: uint) -> Option<UserReply>
 {
-   if input.is_empty() {
+   if input.is_empty() || num_conf_files == 0 {
       return None;
    }
 
-   let lowercase_input = input.chars()
-                              .map(|c| c.to_lowercase())
-                              .collect::<String>();
+   let lowercase_input: String = input.chars()
+                                      .map(|c| c.to_lowercase())
+                                      .collect();
 
    let mut parser = Parser::new(lowercase_input.as_slice());
    parser.skip_whitespace();
@@ -38,7 +38,9 @@ pub fn parse(input: &String) -> Option<UserReply>
          match c {
             't' => {
                match uints.len() {
-                  1 => Some(TakeFile(uints[0])),
+                  1 if valid_file_num(uints[0], num_conf_files)
+                  => Some(TakeFile(uints[0])),
+
                   _ => None
                }
             }
@@ -46,8 +48,13 @@ pub fn parse(input: &String) -> Option<UserReply>
             'd' => {
                match uints.len() {
                   0 => Some(ShowDiff),
-                  1 => Some(ShowDiffWith(uints[0])),
-                  2 => Some(ShowDiffBetween(uints[0], uints[1])),
+
+                  1 if valid_file_num(uints[0], num_conf_files)
+                  => Some(ShowDiffWith(uints[0])),
+
+                  2 if valid_file_num(uints[0], num_conf_files) && valid_file_num(uints[1], num_conf_files)
+                  => Some(ShowDiffBetween(uints[0], uints[1])),
+
                   _ => None
                }
             }
@@ -60,29 +67,6 @@ pub fn parse(input: &String) -> Option<UserReply>
             _ => None,
          }
       }
-   }
-}
-
-pub fn valid(reply: UserReply, num_confs: uint) -> bool
-{
-   match reply {
-      TakeFile(num)
-         if ! valid_file_num(num, num_confs)
-         => false,
-
-      ShowDiff
-         if num_confs != 1
-         => false,
-
-      ShowDiffWith(num) 
-         if ! valid_file_num(num, num_confs) 
-         => false,
-
-      ShowDiffBetween(num1, num2) 
-         if ! valid_file_num(num1, num_confs) || ! valid_file_num(num2, num_confs)
-         => false,
-
-      _ => true
    }
 }
 
@@ -106,7 +90,6 @@ fn take_uints(parser: &mut Parser) -> Vec<uint>
 }
 
 #[test]
-#[cfg(test)]
 fn tests()
 {
    test_str("t"       , None);
@@ -116,6 +99,7 @@ fn tests()
    test_str(" t  1  " , Some(TakeFile(1)));
    test_str(" t  1  2", None);
    test_str("d12"     , Some(ShowDiffWith(12)));
+   test_str("d13"     , None);
    test_str("d"       , Some(ShowDiff));
    test_str("d1 2"    , Some(ShowDiffBetween(1, 2)));
    test_str("d1    2" , Some(ShowDiffBetween(1, 2)));
@@ -136,5 +120,5 @@ fn tests()
 fn test_str(input: &str, reply: Option<UserReply>)
 {
    println!("test: {}", input);
-   assert_eq!(parse(&input.to_string()), reply);
+   assert_eq!(parse(&input.to_string(), 12), reply);
 }
