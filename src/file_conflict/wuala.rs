@@ -1,4 +1,4 @@
-use file_conflict_types::{OrigFileName, Details};
+use super::types::{OrigFileName, Details};
 use parser::{Parser, ParseError};
 
 // Parses a wuala file conflict encoded in the file name in the form:

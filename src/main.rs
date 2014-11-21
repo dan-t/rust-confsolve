@@ -23,7 +23,6 @@ use std::io::fs::{
 };
 
 use file_conflict::{
-   find,
    ConflictType,
    Wuala,
    Dropbox,
@@ -57,11 +56,8 @@ use app_result::{
 
 mod app_result;
 mod file_system;
-mod user_reply;
-mod wuala_conflict;
-mod dropbox_conflict;
 mod file_conflict;
-mod file_conflict_types;
+mod user_reply;
 mod parser;
 mod appdirs;
 mod args;

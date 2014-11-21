@@ -1,6 +1,13 @@
 use std::fmt::{Show, Formatter, FormatError};
 use std::path::Path;
 
+/// The kind of conflicts to search for and to resolve.
+pub enum ConflictType
+{
+   Wuala,
+   Dropbox
+}
+
 // the file name of the original file,
 // without the details of the conflict
 pub type OrigFileName = String;
