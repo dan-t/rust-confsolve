@@ -7,14 +7,7 @@ pub fn cache(app_name: &str) -> Option<Path>
       return None;
    }
 
-   match cache_home() {
-      Some(mut dir) => {
-         dir.push(app_name);
-         Some(dir)
-      }
-
-      None => None
-   }
+   cache_home().map(|mut dir| { dir.push(app_name); dir })
 }
 
 /// OS specific path for caches.
@@ -23,28 +16,17 @@ pub fn cache_home() -> Option<Path>
    #[cfg(unix)]
    fn _cache_home() -> Option<Path>
    {
-      match homedir() {
-         Some(mut dir) => {
-            dir.push(".cache");
-            Some(dir)
-         }
-
-         None => None
-      }
+      homedir().map(|mut dir| { dir.push(".cache"); dir })
    }
 
    #[cfg(windows)]
    fn _cache_home() -> Option<Path>
    {
-      match homedir() {
-         Some(mut dir) => {
-            dir.push("Local Settings");
-            dir.push("Cache");
-            Some(dir)
-         }
-
-         None => None
-      }
+      homedir().map(|mut dir| {
+         dir.push("Local Settings");
+         dir.push("Cache");
+         dir
+      })
    }
 
    _cache_home()
