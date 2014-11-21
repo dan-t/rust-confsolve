@@ -1,6 +1,6 @@
 use std::os;
 use std::path::Path;
-use std::fmt::{Show, Formatter, FormatError};
+use std::fmt::{Show, Formatter, Error};
 
 #[deriving(PartialEq)]
 pub enum Command
@@ -13,7 +13,7 @@ pub enum Command
 
 impl Show for Command
 {
-   fn fmt(&self, f: &mut Formatter) -> Result<(), FormatError>
+   fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
       match *self {
          ResolveWuala(ref path)   => write!(f, "ResolveWuala({})", path.display()),

@@ -1,4 +1,4 @@
-use std::fmt::{Show, Formatter, FormatError};
+use std::fmt::{Show, Formatter, Error};
 use std::path::Path;
 
 /// The kind of conflicts to search for and to resolve.
@@ -32,7 +32,7 @@ pub struct Conflict
 
 impl Show for ConflictingFile
 {
-   fn fmt(&self, f: &mut Formatter) -> Result<(), FormatError>
+   fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
       write!(f, "ConflictingFile (details: {}, path: {})",
              self.details, self.path.display())
@@ -41,7 +41,7 @@ impl Show for ConflictingFile
 
 impl Show for Conflict
 {
-   fn fmt(&self, f: &mut Formatter) -> Result<(), FormatError>
+   fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
       try!(writeln!(f, "Conflicting file: {}", self.original_path.display()));
       for i in range(0, self.conflicting_files.len()) {
