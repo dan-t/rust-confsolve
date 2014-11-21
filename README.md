@@ -12,7 +12,7 @@ Installation
 * `cd rust-confsolve`
 * `cabal build --release`
 
-The build binary will be located at `target/release/confsovle`.
+The build binary will be located at `target/release/confsolve`.
 
 Usage
 =====
