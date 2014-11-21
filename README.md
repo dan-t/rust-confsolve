@@ -1,3 +1,6 @@
+ATTENTION: The project isn't finished and doesn't work properly, but
+there's a working Haskell version at `https://github.com/dan-t/confsolve`. 
+
 confsolve
 =========
 
