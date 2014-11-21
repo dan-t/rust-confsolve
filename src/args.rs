@@ -2,6 +2,13 @@ use std::os;
 use std::path::Path;
 use std::fmt::{Show, Formatter, Error};
 
+pub use self::Command::{
+   ResolveWuala,
+   ResolveDropbox,
+   PrintHelp,
+   InvalidUsage
+};
+
 #[deriving(PartialEq)]
 pub enum Command
 {

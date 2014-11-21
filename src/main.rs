@@ -30,8 +30,7 @@ use file_conflict::{
    ConflictingFile
 };
 
-use user_reply::{
-   UserReply,
+use user_reply::UserReply::{
    TakeFile,
    MoveToTrash,
    ShowDiff,
@@ -42,16 +41,16 @@ use user_reply::{
    Help
 };
 
+use app_result::{
+   AppResult,
+   AppError
+};
+
 use args::{
    ResolveWuala,
    ResolveDropbox,
    PrintHelp,
    InvalidUsage
-};
-
-use app_result::{
-   AppResult,
-   AppError
 };
 
 mod app_result;

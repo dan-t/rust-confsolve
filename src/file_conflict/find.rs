@@ -13,9 +13,7 @@ use super::types::{
    Details,
    Conflict,
    ConflictingFile,
-   ConflictType,
-   Wuala,
-   Dropbox
+   ConflictType
 };
 
 use super::wuala;

@@ -1,6 +1,11 @@
 use std::fmt::{Show, Formatter, Error};
 use std::path::Path;
 
+pub use self::ConflictType::{
+   Wuala,
+   Dropbox
+};
+
 /// The kind of conflicts to search for and to resolve.
 pub enum ConflictType
 {

@@ -1,6 +1,17 @@
 use std::iter::Iterator;
 use parser::Parser;
 
+pub use self::UserReply::{
+   TakeFile,
+   MoveToTrash,
+   ShowDiff,
+   ShowDiffWith,
+   ShowDiffBetween,
+   Skip,
+   Quit,
+   Help
+};
+
 pub type FileNum = uint;
 
 #[deriving(Show, PartialEq, Eq)]
