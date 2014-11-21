@@ -1,4 +1,4 @@
-use stream::Stream;
+use super::stream::Stream;
 use std::io;
 
 pub struct Parser<'a>

@@ -57,11 +57,10 @@ use app_result::{
 mod app_result;
 mod file_system;
 mod file_conflict;
-mod user_reply;
 mod parser;
+mod user_reply;
 mod appdirs;
 mod args;
-mod stream;
 
 fn main() 
 {
