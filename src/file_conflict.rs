@@ -1,4 +1,6 @@
 use std::io::IoResult;
+use std::io::IoErrorKind::{OtherIoError};
+use std::io::IoError;
 use std::collections::HashMap;
 use std::collections::hash_map::{Entry, Occupied, Vacant};
 use std::vec::Vec;
@@ -33,19 +35,21 @@ pub fn find(conf_type: ConflictType, start_dir: &Path) -> IoResult<Vec<Conflict>
    let mut files = try!(walk_files(start_dir));
    let mut confs_by_orig: HashMap<Path, Vec<ConflictingFile>> = HashMap::new();
    for file in files {
-      match parse(file.filename_str().unwrap()) {
-         Err(..) => {}
+      let filename =
+         try!(file.filename_str()
+                  .ok_or(IoError { kind: OtherIoError,
+                                   desc: "Couldn't get filename from path",
+                                   detail: None }));
 
-         Ok((orig, details)) => {
-            let mut orig_file = file.clone();
-            orig_file.set_filename(orig);
-            let conf = ConflictingFile {details: details, path: file.clone()};
-            match confs_by_orig.entry(orig_file) {
-               Occupied(mut entry) => entry.get_mut().push(conf),
-               Vacant(entry)       => { entry.set(Vec::from_elem(1, conf)); }
-            }
+      parse(filename).map(|(orig, details)| {
+         let mut orig_file = file.clone();
+         orig_file.set_filename(orig);
+         let conf = ConflictingFile {details: details, path: file.clone()};
+         match confs_by_orig.entry(orig_file) {
+            Occupied(mut entry) => entry.get_mut().push(conf),
+            Vacant(entry)       => { entry.set(Vec::from_elem(1, conf)); }
          }
-      }
+      });
    }
 
    let mut confs = Vec::new();

@@ -11,9 +11,14 @@ use parser::{Parser, ParseError};
 //
 // would return:
 //
-//    `Ok("x_original.txt", "Version 5 from blub")`
+//    `Some("x_original.txt", "Version 5 from blub")`
 //
-pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
+pub fn parse(file_name: &str) -> Option<(OrigFileName, Details)>
+{
+   parse_internal(file_name).ok()
+}
+
+fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 {
    let mut parser = Parser::new(file_name);
    let mut base_name = try!(parser.take_while(|c| c != '('));
@@ -41,7 +46,6 @@ pub fn parse(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 }
 
 #[test]
-#[cfg(test)]
 fn tests()
 {
    test_str("original (conflicting version 1 from machine)", "original", "Version 1 from machine");
@@ -55,7 +59,7 @@ fn tests()
 fn test_str(file_name: &str, orig_name: &str, details: &str)
 {
    println!("test: {}", file_name);
-   match parse(file_name) {
+   match parse_internal(file_name) {
       Ok((name, det)) => {
          assert_eq!(orig_name.to_string(), name);
          assert_eq!(details.to_string()  , det);
