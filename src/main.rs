@@ -6,11 +6,6 @@
 #![feature(phase)]
 
 extern crate collections;
-extern crate docopt;
-extern crate serialize;
-
-#[phase(plugin)]
-extern crate docopt_macros;
 
 use std::os::{set_exit_status, getenv};
 use std::path::Path;
@@ -48,6 +43,13 @@ use user_reply::{
    Help
 };
 
+use args::{
+   ResolveWuala,
+   ResolveDropbox,
+   PrintHelp,
+   InvalidUsage
+};
+
 mod file_system;
 mod user_reply;
 mod wuala_conflict;
@@ -61,17 +63,33 @@ mod stream;
 
 fn main() 
 {
-//   let args = args::get();
-//   let conf_type = if args.cmd_wuala { Wuala } else { Dropbox };
-//   match resolve_conflicts(conf_type, &Path::new(args.arg_dir)) {
-   match resolve_conflicts(Wuala, &Path::new("/home/dan/test/confsolve")) {
-      Ok(..)   => {}
-      Err(err) => {
-         let mut stderr = io::stderr();
-         let _ = writeln!(stderr, "confsolve: {}", err);
-         set_exit_status(1);
+//   let cmd = ResolveWuala(Path::new("/home/dan/test/confsolve"));
+   let cmd = args::get_command();
+   match cmd {
+      ResolveWuala(path) => {
+         resolve_conflicts(Wuala, &path)
+            .unwrap_or_else(|err| { exit_with_error(format!("{}", err)); });
+      }
+
+      ResolveDropbox(path) => {
+         resolve_conflicts(Dropbox, &path)
+            .unwrap_or_else(|err| { exit_with_error(format!("{}", err)); });
+      }
+
+      PrintHelp => args::print_help(),
+
+      InvalidUsage => {
+         exit_with_error("Invalid usage!".to_string());
+         args::print_help();
       }
    }
+}
+
+fn exit_with_error(error: String)
+{
+   let mut stderr = io::stderr();
+   let _ = writeln!(stderr, "confsolve: {}", error);
+   set_exit_status(1);
 }
 
 /// Finds file conflicts of type `conf_type` starting at the directory `start_dir`,
