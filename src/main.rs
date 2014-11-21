@@ -50,6 +50,7 @@ use args::{
    InvalidUsage
 };
 
+mod app_result;
 mod file_system;
 mod user_reply;
 mod wuala_conflict;
