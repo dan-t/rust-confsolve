@@ -63,7 +63,6 @@ mod args;
 
 fn main() 
 {
-//   let cmd = ResolveWuala(Path::new("/home/dan/test/confsolve"));
    let cmd = args::get_command();
    match cmd {
       ResolveWuala(path) => {
