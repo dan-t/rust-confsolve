@@ -18,6 +18,7 @@ pub use file_conflict_types::{
 use file_system::walk_files;
 use wuala_conflict;
 use dropbox_conflict;
+use app_result::{AppResult, AppError};
 
 pub enum ConflictType
 {
@@ -25,7 +26,7 @@ pub enum ConflictType
    Dropbox
 }
 
-pub fn find(conf_type: ConflictType, start_dir: &Path) -> IoResult<Vec<Conflict>>
+pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict>>
 {
    let parse = match conf_type {
       Wuala   => wuala_conflict::parse,
@@ -35,11 +36,8 @@ pub fn find(conf_type: ConflictType, start_dir: &Path) -> IoResult<Vec<Conflict>
    let mut files = try!(walk_files(start_dir));
    let mut confs_by_orig: HashMap<Path, Vec<ConflictingFile>> = HashMap::new();
    for file in files {
-      let filename =
-         try!(file.filename_str()
-                  .ok_or(IoError { kind: OtherIoError,
-                                   desc: "Couldn't get filename from path",
-                                   detail: None }));
+      let filename = try!(file.filename_str()
+         .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display()))));
 
       parse(filename).map(|(orig, details)| {
          let mut orig_file = file.clone();

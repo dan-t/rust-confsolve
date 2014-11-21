@@ -3,7 +3,7 @@ use std::error::FromError;
 use std::fmt::{Show, Formatter, FormatError};
 
 /// The result used in the whole application.
-type AppResult<T> = Result<T, AppError>;
+pub type AppResult<T> = Result<T, AppError>;
 
 /// The generic error used in the whole application.
 pub struct AppError
@@ -18,9 +18,9 @@ impl AppError
       AppError { error: str.to_string() }
    }
 
-   pub fn from_string(string: &String) -> AppError
+   pub fn from_string(string: String) -> AppError
    {
-      AppError { error: string.clone() }
+      AppError { error: string }
    }
 }
 

@@ -50,6 +50,11 @@ use args::{
    InvalidUsage
 };
 
+use app_result::{
+   AppResult,
+   AppError
+};
+
 mod app_result;
 mod file_system;
 mod user_reply;
@@ -96,7 +101,7 @@ fn exit_with_error(error: String)
 /// Finds file conflicts of type `conf_type` starting at the directory `start_dir`,
 /// recursively visiting every file, asking the user how each conflict should
 /// be handled and then executing the user command.
-fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> IoResult<()>
+fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 {
    let mut stdin = io::stdin();
    let confs = try!(file_conflict::find(conf_type, start_dir));
@@ -164,36 +169,35 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> IoResult<()>
    Ok(())
 }
 
-/// Call the diff command specified by the environment variable `CONFSOLVE_DIFF`
+/// Calls the diff command specified by the environment variable `CONFSOLVE_DIFF`
 /// or - if not defined - `gvimdiff -f` with the files `file1` and `file2`.
-fn show_diff(file1: &Path, file2: &Path) -> IoResult<()>
+fn show_diff(file1: &Path, file2: &Path) -> AppResult<()>
 {
    let diff_cmd_and_args = getenv("CONFSOLVE_DIFF").unwrap_or("gvimdiff -f".to_string());
    let diff_cmd_and_args = diff_cmd_and_args.as_slice().split(' ').collect::<Vec<&str>>();
 
    let diff_cmd = diff_cmd_and_args[0];
 
-   let mut args = diff_cmd_and_args.iter().skip(1).collect::<Vec<&str>>();
-   args.push(file1.as_str().unwrap());
-   args.push(file2.as_str().unwrap());
+//   let mut args = diff_cmd_and_args.iter().collect::<Vec<&str>>();
+//   let mut args = diff_cmd_and_args.iter().skip(1).collect::<Vec<&str>>();
+//   let mut args = diff_cmd_and_args;
+//   args.push(file1.as_str().unwrap());
+//   args.push(file2.as_str().unwrap());
 
-   let mut cmd = Command::new(diff_cmd);
-   for arg in args.iter() {
-      cmd = cmd.arg(arg);
-   }
-
-   try!(cmd.output());
+//   let mut cmd = Command::new(diff_cmd);
+//   for arg in args.iter() {
+//      cmd.arg(arg);
+//   }
+//
+//   try!(cmd.output());
    Ok(())
 }
 
 /// Moves `file` into the trash directory of confsolve.
-fn move_to_trash(file: &Path) -> IoResult<()>
+fn move_to_trash(file: &Path) -> AppResult<()>
 {
-   let filename = 
-      try!(file.filename_str()
-               .ok_or(IoError { kind: OtherIoError,
-                                desc: "Couldn't get filename from path",
-                                detail: None }));
+   let filename = try!(file.filename_str()
+      .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display()))));
 
    let mut trash_file = try!(trash_dir());
    trash_file.set_filename(filename);
@@ -204,13 +208,11 @@ fn move_to_trash(file: &Path) -> IoResult<()>
    Ok(())
 }
 
-/// Returns the trash directory of confsolve, where all deleted/moved
-/// conflicting files are put into.
-fn trash_dir() -> IoResult<Path>
+/// Returns the trash directory of confsolve, where all deleted/moved files are put into.
+fn trash_dir() -> AppResult<Path>
 {
-   let mut dir = 
-      try!(appdirs::cache("confsolve")
-              .ok_or(IoError { kind: OtherIoError, desc: "Couldn't read cache directory", detail: None }));
+   let mut dir = try!(appdirs::cache("confsolve")
+      .ok_or(AppError::from_string(format!("Couldn't get cache directory!"))));
 
    dir.push("trash");
    if ! dir.is_dir() {
@@ -220,7 +222,7 @@ fn trash_dir() -> IoResult<Path>
    Ok(dir)
 }
 
-fn print_runtime_help() -> IoResult<()>
+fn print_runtime_help() -> AppResult<()>
 {
    let trash_dir = try!(trash_dir());
    let dir_str   = trash_dir.display();
