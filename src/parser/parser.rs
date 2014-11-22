@@ -69,7 +69,7 @@ impl<'a> Parser<'a>
    {
       self.push_pos();
       let mut digits = String::new();
-      while ! self.eof() && self.next_char_or_fail().is_digit() {
+      while ! self.eof() && self.next_char_or_fail().is_digit(10) {
          digits.push(self.take_char_or_fail());
       }
 
