@@ -32,17 +32,16 @@ pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict
    let mut files = try!(walk_files(start_dir));
    let mut confs_by_orig: HashMap<Path, Vec<ConflictingFile>> = HashMap::new();
    for file in files {
-      let filename = try!(file.filename_str()
-         .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display()))));
-
-      parse(filename).map(|(orig, details)| {
-         let mut orig_file = file.clone();
-         orig_file.set_filename(orig);
-         let conf = ConflictingFile {details: details, path: file.clone()};
-         match confs_by_orig.entry(orig_file) {
-            Occupied(mut entry) => entry.get_mut().push(conf),
-            Vacant(entry)       => { entry.set(Vec::from_elem(1, conf)); }
-         }
+      file.filename_str().map(|filename| {
+         parse(filename).map(|(orig, details)| {
+            let mut orig_file = file.clone();
+            orig_file.set_filename(orig);
+            let conf = ConflictingFile {details: details, path: file.clone()};
+            match confs_by_orig.entry(orig_file) {
+               Occupied(mut entry) => entry.get_mut().push(conf),
+               Vacant(entry)       => { entry.set(Vec::from_elem(1, conf)); }
+            }
+         });
       });
    }
 

@@ -189,7 +189,7 @@ fn show_diff(file1: &Path, file2: &Path) -> AppResult<()>
 /// Moves `file` into the trash directory of confsolve.
 fn move_to_trash(file: &Path) -> AppResult<()>
 {
-   let filename = try!(file.filename_str()
+   let filename = try!(file.filename()
       .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display()))));
 
    let mut trash_file = try!(trash_dir());
