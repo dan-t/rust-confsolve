@@ -28,7 +28,9 @@ impl Show for AppError
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
-      writeln!(f, "{}", self.error)
+//      writeln!(f, "{}", self.error)
+      println!("{}", self.error);
+      Ok(())
    }
 }
 

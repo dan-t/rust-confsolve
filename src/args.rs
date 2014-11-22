@@ -22,12 +22,21 @@ impl Show for Command
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
+//      match *self {
+//         ResolveWuala(ref path)   => write!(f, "ResolveWuala({})", path.display()),
+//         ResolveDropbox(ref path) => write!(f, "ResolveDropbox({})", path.display()),
+//         PrintHelp                => write!(f, "PrintHelp"),
+//         InvalidUsage             => write!(f, "InvalidUsage")
+//      }
+
       match *self {
-         ResolveWuala(ref path)   => write!(f, "ResolveWuala({})", path.display()),
-         ResolveDropbox(ref path) => write!(f, "ResolveDropbox({})", path.display()),
-         PrintHelp                => write!(f, "PrintHelp"),
-         InvalidUsage             => write!(f, "InvalidUsage")
+         ResolveWuala(ref path)   => println!("ResolveWuala({})", path.display()),
+         ResolveDropbox(ref path) => println!("ResolveDropbox({})", path.display()),
+         PrintHelp                => println!("PrintHelp"),
+         InvalidUsage             => println!("InvalidUsage")
       }
+
+      Ok(())
    }
 }
 
