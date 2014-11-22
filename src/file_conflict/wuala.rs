@@ -21,7 +21,7 @@ pub fn parse(file_name: &str) -> Option<(OrigFileName, Details)>
 fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError>
 {
    let mut parser = Parser::new(file_name);
-   let mut base_name = try!(parser.take_while(|c| c != '('));
+   let mut base_name = parser.take_while(|c| c != '(');
 
    // drops the whitespace before the '('
    base_name.pop();
@@ -33,11 +33,11 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
               .or(parser.skip(" from"))
               .or(Ok(())));
 
-   let host = try!(parser.take_while(|c| c != ')'));
+   let host = parser.take_while(|c| c != ')');
    try!(parser.skip(")"));
       
    if ! parser.eof() {
-      let extension = try!(parser.take_till_eof());
+      let extension = parser.take_till_eof();
       base_name.push_str(extension.as_slice());
    }
 

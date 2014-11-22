@@ -51,18 +51,18 @@ impl<'a> Parser<'a>
       self.skip_while(|c| c.is_whitespace());
    }
 
-   pub fn take_while(&mut self, test: |char| -> bool) -> Result<String, ParseError>
+   pub fn take_while(&mut self, test: |char| -> bool) -> String
    {
       let mut string = String::new();
       while ! self.eof() {
          if ! test(self.next_char_or_fail()) {
-            return Ok(string);
+            return string;
          }
 
          string.push(self.take_char_or_fail());
       }
 
-      Ok(string)
+      string
    }
 
    pub fn take_uint(&mut self) -> Result<uint, ParseError>
@@ -95,14 +95,14 @@ impl<'a> Parser<'a>
       Ok(self.take_char_or_fail())
    }
 
-   pub fn take_till_eof(&mut self) -> Result<String, ParseError>
+   pub fn take_till_eof(&mut self) -> String
    {
       let mut string = String::new();
       while ! self.eof() {
          string.push(self.take_char_or_fail());
       }
 
-      Ok(string)
+      string
    }
 
    pub fn consumed(&self) -> &str { self.strm.consumed() }
