@@ -39,6 +39,7 @@ pub fn move_to_trash(file: &Path) -> AppResult<()>
 
    let mut trash_file = try!(trash_dir_of_today());
    trash_file.push(filename);
+   let trash_file = try!(unique_file(trash_file));
 
    try!(copy(file, &trash_file));
    try!(unlink(file));
@@ -83,6 +84,27 @@ pub fn trash_dir() -> AppResult<Path>
    }
 
    Ok(dir)
+}
+
+/// Returns a unique path for `file`, by adding a suffix to `file` until it's unique.
+pub fn unique_file(file: Path) -> AppResult<Path>
+{
+   if ! file.is_file() {
+      return Ok(file);
+   }
+
+   let filename_str = try!(file.filename_str()
+      .ok_or(AppError::from_string(format!("Couldn't get filename_str of '{}'!", file.display()))));
+
+   let mut tmp_file = file.clone();
+   for i in range(2i, 10000i) {
+      tmp_file.set_filename(format!("{}-{}", filename_str, i));
+      if ! tmp_file.is_file() {
+         return Ok(tmp_file);
+      }
+   }
+
+   Err(AppError::from_string(format!("Couldn't get a unique path for '{}'!", file.display())))
 }
 
 /// An iterator which walks over Files
