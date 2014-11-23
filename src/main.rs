@@ -174,18 +174,16 @@ fn show_diff(file1: &Path, file2: &Path) -> AppResult<()>
 
    let diff_cmd = diff_cmd_and_args[0];
 
-//   let mut args = diff_cmd_and_args.iter().collect::<Vec<&str>>();
-//   let mut args = diff_cmd_and_args.iter().skip(1).collect::<Vec<&str>>();
-//   let mut args = diff_cmd_and_args;
-//   args.push(file1.as_str().unwrap());
-//   args.push(file2.as_str().unwrap());
+   let mut args = diff_cmd_and_args.iter().skip(1);
+   let mut cmd = Command::new(diff_cmd);
+   for arg in args {
+      cmd.arg(arg);
+   }
 
-//   let mut cmd = Command::new(diff_cmd);
-//   for arg in args.iter() {
-//      cmd.arg(arg);
-//   }
-//
-//   try!(cmd.output());
+   cmd.arg(file1);
+   cmd.arg(file2);
+
+   try!(cmd.output());
    Ok(())
 }
 
