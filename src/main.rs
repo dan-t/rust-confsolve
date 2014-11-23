@@ -127,12 +127,16 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 
                      try!(move_to_trash(&conf.original_path));
                      try!(move_file(take_file, &conf.original_path));
+
+                     break;
                   }
 
                   MoveToTrash => {
                      for conf_file in conf.conflicting_files.iter() {
                         try!(move_to_trash(&conf_file.path));
                      }
+
+                     break;
                   }
 
                   ShowDiff => {
