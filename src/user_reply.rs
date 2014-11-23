@@ -58,7 +58,8 @@ pub fn parse(input: &String, num_conf_files: uint) -> Option<UserReply>
 
             'd' => {
                match uints.len() {
-                  0 => Some(ShowDiff),
+                  0 if num_conf_files == 1
+                  => Some(ShowDiff),
 
                   1 if valid_file_num(uints[0], num_conf_files)
                   => Some(ShowDiffWith(uints[0])),
@@ -111,7 +112,7 @@ fn tests()
    test_str(" t  1  2", None);
    test_str("d12"     , Some(ShowDiffWith(12)));
    test_str("d13"     , None);
-   test_str("d"       , Some(ShowDiff));
+   test_str("d"       , None);
    test_str("d1 2"    , Some(ShowDiffBetween(1, 2)));
    test_str("d1    2" , Some(ShowDiffBetween(1, 2)));
    test_str("d  1  2" , Some(ShowDiffBetween(1, 2)));
