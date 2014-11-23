@@ -1,6 +1,7 @@
 use std::io::IoError;
 use std::error::FromError;
 use std::fmt::{Show, Formatter, Error};
+use time::ParseError;
 
 /// The result used in the whole application.
 pub type AppResult<T> = Result<T, AppError>;
@@ -37,6 +38,14 @@ impl Show for AppError
 impl FromError<IoError> for AppError
 {
    fn from_error(err: IoError) -> AppError
+   {
+      AppError { error: format!("{}", err) }
+   }
+}
+
+impl FromError<ParseError> for AppError
+{
+   fn from_error(err: ParseError) -> AppError
    {
       AppError { error: format!("{}", err) }
    }
