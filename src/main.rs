@@ -198,7 +198,7 @@ fn move_to_trash(file: &Path) -> AppResult<()>
    let filename = try!(file.filename()
       .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display()))));
 
-   let mut trash_file = try!(current_trash_dir());
+   let mut trash_file = try!(trash_dir_of_today());
    trash_file.push(filename);
 
    try!(copy(file, &trash_file));
@@ -215,9 +215,9 @@ fn move_file(from_file: &Path, to_file: &Path) -> AppResult<()>
    Ok(())
 }
 
-/// Returns the trash directory of the current confsolve run, where all deleted/moved
+/// Returns the trash directory of confsolve runs of today, where all deleted/moved
 /// files are put into.
-fn current_trash_dir() -> AppResult<Path>
+fn trash_dir_of_today() -> AppResult<Path>
 {
    let time = time::now();
    let day_str = try!(time.strftime("%Y-%m-%d"));
