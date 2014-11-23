@@ -32,7 +32,7 @@ fn tests()
 fn test_str(file_name: &str, orig_name: &str, details: &str)
 {
    println!("test: {}", file_name);
-   match parse(file_name) {
+   match parse_internal(file_name) {
       Ok((name, det)) => {
          assert_eq!(orig_name.to_string(), name);
          assert_eq!(details.to_string()  , det);
