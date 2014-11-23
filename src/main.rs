@@ -6,6 +6,7 @@
 #![feature(phase)]
 
 extern crate collections;
+extern crate time;
 
 use std::os::{set_exit_status, getenv};
 use std::path::Path;

@@ -3,3 +3,6 @@
 name = "confsolve"
 version = "0.0.1"
 authors = ["Daniel Trstenjak <daniel.trstenjak@gmail.com>"]
+
+[dependencies]
+time = "*"
