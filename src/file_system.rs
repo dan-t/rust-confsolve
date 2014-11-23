@@ -4,7 +4,6 @@ use std::io::IoResult;
 use std::io;
 use std::vec::Vec;
 use app_result::{AppResult, AppError};
-use time;
 use appdirs;
 
 use std::io::fs::{
@@ -37,7 +36,7 @@ pub fn move_to_trash(file: &Path) -> AppResult<()>
    let filename = try!(file.filename()
       .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display()))));
 
-   let mut trash_file = try!(trash_dir_of_today());
+   let mut trash_file = try!(trash_dir());
    trash_file.push(filename);
    let trash_file = try!(unique_file(trash_file));
 
@@ -53,23 +52,6 @@ pub fn move_file(from_file: &Path, to_file: &Path) -> AppResult<()>
    try!(unlink(from_file));
 
    Ok(())
-}
-
-/// Returns the trash directory of confsolve runs of today, where all deleted/moved
-/// files are put into.
-pub fn trash_dir_of_today() -> AppResult<Path>
-{
-   let time = time::now();
-   let day_str = try!(time.strftime("%Y-%m-%d"));
-
-   let mut curr_dir = try!(trash_dir());
-   curr_dir.push(format!("{}", day_str));
-
-   if ! curr_dir.is_dir() {
-      try!(mkdir_recursive(&curr_dir, io::USER_RWX));
-   }
-
-   Ok(curr_dir)
 }
 
 /// Returns the trash directory of confsolve, where all deleted/moved files are put into.

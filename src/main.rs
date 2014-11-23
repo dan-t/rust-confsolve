@@ -6,7 +6,6 @@
 #![feature(phase)]
 
 extern crate collections;
-extern crate time;
 
 use std::os::{set_exit_status, getenv};
 use std::path::Path;
@@ -51,8 +50,7 @@ use args::{
 use file_system::{
    move_to_trash,
    move_file,
-   trash_dir,
-   trash_dir_of_today
+   trash_dir
 };
 
 mod app_result;
