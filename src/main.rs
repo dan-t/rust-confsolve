@@ -97,6 +97,7 @@ fn exit_with_error(error: String)
 fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 {
    let mut stdin = io::stdin();
+
    let confs = try!(file_conflict::find(conf_type, start_dir));
    for conf in confs.iter() {
       if ! conf.original_path.is_file() {
@@ -107,9 +108,11 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 
       let num_conf_files = conf.conflicting_files.len();
       println!("\n{}", conf);
+
       loop {
          print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");
          let mut line = try!(stdin.read_line());
+
          match user_reply::parse(&line, num_conf_files) {
             Some(reply) => {
                match reply {
@@ -122,7 +125,7 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
                      }
 
                      try!(move_to_trash(&conf.original_path));
-                     try!(copy(take_file, &conf.original_path));
+                     try!(move_file(take_file, &conf.original_path));
                   }
 
                   MoveToTrash => {
@@ -197,6 +200,14 @@ fn move_to_trash(file: &Path) -> AppResult<()>
 
    try!(copy(file, &trash_file));
    try!(unlink(file));
+
+   Ok(())
+}
+
+fn move_file(from_file: &Path, to_file: &Path) -> AppResult<()>
+{
+   try!(copy(from_file, to_file));
+   try!(unlink(from_file));
 
    Ok(())
 }
