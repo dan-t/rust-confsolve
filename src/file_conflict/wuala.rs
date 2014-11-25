@@ -48,23 +48,27 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
 #[test]
 fn tests()
 {
-   test_str("original (conflicting version 1 from machine)", "original", "Version 1 from machine");
-   test_str("x_original (conflicting version 5 from blub).txt", "x_original.txt", "Version 5 from blub");
-   test_str("x_original (conflicting version 5 from ).txt", "x_original.txt", "Version 5 from ");
-   test_str("x_original (conflicting version 5 from).txt", "x_original.txt", "Version 5 from ");
-   test_str("x_original (conflicting version 5).txt", "x_original.txt", "Version 5 from ");
+   test_str("original (conflicting version 1 from machine)",
+            Ok(("original".to_string(), "Version 1 from machine".to_string())));
+
+   test_str("x_original (conflicting version 5 from blub).txt",
+            Ok(("x_original.txt".to_string(), "Version 5 from blub".to_string())));
+
+   test_str("x_original (conflicting version 5 from ).txt",
+            Ok(("x_original.txt".to_string(), "Version 5 from ".to_string())));
+
+   test_str("x_original (conflicting version 5 from).txt",
+            Ok(("x_original.txt".to_string(), "Version 5 from ".to_string())));
+
+   test_str("x_original (conflicting version 5).txt",
+            Ok(("x_original.txt".to_string(), "Version 5 from ".to_string())));
+
+   test_str("z_original", Err("Couldn't skip str '(conflicting version '!".to_string()));
 }
 
 #[cfg(test)]
-fn test_str(file_name: &str, orig_name: &str, details: &str)
+fn test_str(file_name: &str, result: Result<(OrigFileName, Details), ParseError>)
 {
    println!("test: {}", file_name);
-   match parse_internal(file_name) {
-      Ok((name, det)) => {
-         assert_eq!(orig_name.to_string(), name);
-         assert_eq!(details.to_string()  , det);
-      }
-
-      Err(err) => assert!(false, err)
-   }
+   assert_eq!(parse_internal(file_name), result);
 }
