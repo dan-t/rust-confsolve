@@ -46,22 +46,33 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
 #[test]
 fn tests()
 {
-   test_str("a_original (blub's conflicted copy 2011-04-30)", "a_original", "Version 2011-04-30 from blub");
-   test_str("a_original (blub's conflicted copy 2011-04-30).txt", "a_original.txt", "Version 2011-04-30 from blub");
-   test_str("original (machine's conflicted copy 2011-04-29)", "original", "Version 2011-04-29 from machine");
-   test_str("z_original (laptop's conflicted copy 2011-04-28).qay", "z_original.qay", "Version 2011-04-28 from laptop");
+   test_str("a_original (blub's conflicted copy 2011-04-30)",
+            Ok(("a_original".to_string(), "Version 2011-04-30 from blub".to_string())));
+
+   test_str("a_original (blub's conflicted copy 2011-04-30).txt",
+            Ok(("a_original.txt".to_string(), "Version 2011-04-30 from blub".to_string())));
+
+   test_str("original (machine's conflicted copy 2011-04-29)",
+            Ok(("original".to_string(), "Version 2011-04-29 from machine".to_string())));
+
+   test_str("z_original (laptop's conflicted copy 2011-04-28).qay",
+            Ok(("z_original.qay".to_string(), "Version 2011-04-28 from laptop".to_string())));
+
+   test_str("z_original (blub's conflicted copy 2011-04-30)",
+            Ok(("z_original".to_string(), "Version 2011-04-30 from blub".to_string())));
+
+   test_str("z_original (laptop's conflicted copy 2011-04-28)",
+            Ok(("z_original".to_string(), "Version 2011-04-28 from laptop".to_string())));
+
+   test_str("z_original (machine's conflicted copy 2011-04-29)",
+            Ok(("z_original".to_string(), "Version 2011-04-29 from machine".to_string())));
+
+   test_str("z_original", Err("Couldn't skip str '('!".to_string()));
 }
 
 #[cfg(test)]
-fn test_str(file_name: &str, orig_name: &str, details: &str)
+fn test_str(file_name: &str, result: Result<(OrigFileName, Details), ParseError>)
 {
    println!("test: {}", file_name);
-   match parse_internal(file_name) {
-      Ok((name, det)) => {
-         assert_eq!(orig_name.to_string(), name);
-         assert_eq!(details.to_string()  , det);
-      }
-
-      Err(err) => assert!(false, err)
-   }
+   assert_eq!(parse_internal(file_name), result);
 }
