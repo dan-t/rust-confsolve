@@ -33,7 +33,7 @@ Runtime Options
                          into the trash directory '~/.cache/confsolve/trash'.
 
     (M)ove to Trash   => By pressing 'm', all conflicting files are
-                         moved into the trash directory '~.cache/confsolve/trash'.
+                         moved into the trash directory '~/.cache/confsolve/trash'.
 
     Show (D)iff (NUM) => By pressing 'd' and a number (e.g 'd1'), the difference between the
                          current file and the conflicting file NUM is shown.
