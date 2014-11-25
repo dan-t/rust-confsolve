@@ -127,7 +127,7 @@ fn tests()
    match parser_tests() {
       Ok(_)    => {}
       Err(err) => {
-         let mut stderr = io::stderr();
+         let stderr = &mut io::stderr();
          let _ = writeln!(stderr, "Parser test error: {}", err);
       }
    }
@@ -161,7 +161,7 @@ fn parser_tests() -> Result<(), ParseError>
    assert_eq!(parser.unconsumed(), " qqq aswe ");
 
    parser.skip_whitespace();
-   assert_eq!(try!(parser.take_while(|c| c == 'q')), "qqq".to_string());
+   assert_eq!(parser.take_while(|c| c == 'q'), "qqq".to_string());
    assert_eq!(parser.consumed(), "ssss 21 qqq");
    assert_eq!(parser.unconsumed(), " aswe ");
 
@@ -174,7 +174,7 @@ fn parser_tests() -> Result<(), ParseError>
    assert_eq!(parser.unconsumed(), "swe ");
 
    assert_eq!(parser.eof(), false);
-   assert_eq!(try!(parser.take_till_eof()), "swe ".to_string());
+   assert_eq!(parser.take_till_eof(), "swe ".to_string());
    assert_eq!(parser.eof(), true);
 
    Ok(())
