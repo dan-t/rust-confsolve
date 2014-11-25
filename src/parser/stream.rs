@@ -29,6 +29,7 @@ impl<'a> Stream<'a>
 
    pub fn pop_and_reset_pos(&mut self) { self.pos_stack.pop().map(|p| self.pos = p); }
 
+   #[cfg(test)]
    pub fn consumed(&self) -> &str
    {
       if self.pos >= self.input.len() {
@@ -39,6 +40,7 @@ impl<'a> Stream<'a>
       }
    }
 
+   #[cfg(test)]
    pub fn unconsumed(&self) -> &str 
    {
       if self.pos >= self.input.len() {

@@ -13,11 +13,6 @@ pub struct AppError
 
 impl AppError
 {
-   pub fn from_str(str: &str) -> AppError
-   {
-      AppError { error: str.to_string() }
-   }
-
    pub fn from_string(string: String) -> AppError
    {
       AppError { error: string }

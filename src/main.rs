@@ -1,27 +1,15 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_mut)]
-#![allow(unused_imports)]
-
-#![feature(phase)]
-
 extern crate collections;
 
 use std::os::{set_exit_status, getenv};
 use std::path::Path;
 use std::io;
-use std::io::IoResult;
-use std::io::IoError;
-use std::io::IoErrorKind::{OtherIoError};
 use std::io::process::Command;
 use std::io::fs::PathExtensions;
 
 use file_conflict::{
    ConflictType,
    Wuala,
-   Dropbox,
-   Conflict,
-   ConflictingFile
+   Dropbox
 };
 
 use user_reply::UserReply::{
@@ -36,8 +24,7 @@ use user_reply::UserReply::{
 };
 
 use app_result::{
-   AppResult,
-   AppError
+   AppResult
 };
 
 use args::{

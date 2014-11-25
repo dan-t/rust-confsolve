@@ -1,16 +1,11 @@
-use std::io::IoResult;
-use std::io::IoErrorKind::{OtherIoError};
-use std::io::IoError;
 use std::collections::HashMap;
-use std::collections::hash_map::{Entry, Occupied, Vacant};
+use std::collections::hash_map::{Occupied, Vacant};
 use std::vec::Vec;
 
 use file_system::walk_files;
-use app_result::{AppResult, AppError};
+use app_result::AppResult;
 
 use super::types::{
-   OrigFileName,
-   Details,
    Conflict,
    ConflictingFile,
    ConflictType,

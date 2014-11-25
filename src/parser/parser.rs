@@ -1,5 +1,4 @@
 use super::stream::Stream;
-use std::io;
 
 pub struct Parser<'a>
 {
@@ -109,8 +108,10 @@ impl<'a> Parser<'a>
       string
    }
 
+   #[cfg(test)]
    pub fn consumed(&self) -> &str { self.strm.consumed() }
 
+   #[cfg(test)]
    pub fn unconsumed(&self) -> &str { self.strm.unconsumed() }
 
    fn take_char_or_fail(&mut self) -> char { self.strm.take_char_or_fail() }
@@ -128,6 +129,8 @@ impl<'a> Parser<'a>
 #[cfg(test)]
 fn tests()
 {
+   use std::io;
+
    match parser_tests() {
       Ok(_)    => {}
       Err(err) => {
