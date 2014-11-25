@@ -23,6 +23,10 @@ impl<'a> Parser<'a>
          return Err("Couldn't skip empty str!".to_string());
       }
 
+      if self.eof() {
+         return Err(format!("Couldn't skip str '{}'!", str));
+      }
+
       self.push_pos();
       let mut strm = Stream::new(str);
       while ! self.eof() && ! strm.eof() {
