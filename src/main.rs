@@ -86,8 +86,8 @@ fn main()
 
 fn exit_with_error(error: String)
 {
-   let mut stderr = io::stderr();
-   let _ = writeln!(&mut stderr, "confsolve: {}", error);
+   let stderr = &mut io::stderr();
+   let _ = writeln!(stderr, "confsolve: {}", error);
    set_exit_status(1);
 }
 
