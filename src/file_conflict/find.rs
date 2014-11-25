@@ -13,7 +13,9 @@ use super::types::{
    Details,
    Conflict,
    ConflictingFile,
-   ConflictType
+   ConflictType,
+   Wuala,
+   Dropbox
 };
 
 use super::wuala;
@@ -22,12 +24,10 @@ use super::dropbox;
 /// Finds all conflicts of type `conf_type` in the directory hierarchy starting at `start_dir`.
 pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict>>
 {
-//   let parse = match conf_type {
-//      Wuala   => wuala::parse,
-//      Dropbox => dropbox::parse
-//   };
-
-   let parse = wuala::parse;
+   let parse = match conf_type {
+      Wuala   => wuala::parse,
+      Dropbox => dropbox::parse
+   };
 
    let mut files = try!(walk_files(start_dir));
    let mut confs_by_orig: HashMap<Path, Vec<ConflictingFile>> = HashMap::new();
