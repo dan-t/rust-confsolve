@@ -1,4 +1,3 @@
-use std::iter::Iterator;
 use parser::Parser;
 
 pub use self::UserReply::{
