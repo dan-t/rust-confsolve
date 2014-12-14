@@ -1,3 +1,5 @@
+#![cfg_attr(test, allow(dead_code))]
+
 extern crate collections;
 
 use std::os::{set_exit_status, getenv};
