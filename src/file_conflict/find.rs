@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::collections::hash_map::{Occupied, Vacant};
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::vec::Vec;
 
 use file_system::walk_files;
@@ -10,7 +10,9 @@ use super::types::{
    ConflictingFile,
    ConflictType,
    Wuala,
-   Dropbox
+   Dropbox,
+   OrigFileName,
+   Details
 };
 
 use super::wuala;
@@ -19,7 +21,7 @@ use super::dropbox;
 /// Finds all conflicts of type `conf_type` in the directory hierarchy starting at `start_dir`.
 pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict>>
 {
-   let parse = match conf_type {
+   let parse: fn(&str) -> Option<(OrigFileName, Details)> = match conf_type {
       Wuala   => wuala::parse,
       Dropbox => dropbox::parse
    };

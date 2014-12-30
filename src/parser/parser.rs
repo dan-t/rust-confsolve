@@ -76,7 +76,7 @@ impl<'a> Parser<'a>
          digits.push(self.take_char_or_fail());
       }
 
-      match from_str::<uint>(digits.as_slice()) {
+      match digits.parse::<uint>() {
          Some(uint) => {
             self.pop_pos();
             Ok(uint)
