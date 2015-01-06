@@ -1,4 +1,5 @@
 #![cfg_attr(test, allow(dead_code))]
+#![feature(associated_types)]
 
 extern crate collections;
 

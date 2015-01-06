@@ -42,7 +42,8 @@ impl<'a> Parser<'a>
       Ok(())
    }
 
-   pub fn skip_while(&mut self, test: |char| -> bool)
+   pub fn skip_while<F>(&mut self, test: F) where
+      F: Fn(char) -> bool
    {
       while ! self.eof() && test(self.next_char_or_fail()) {
          self.take_char_or_fail();
@@ -54,7 +55,8 @@ impl<'a> Parser<'a>
       self.skip_while(|c| c.is_whitespace());
    }
 
-   pub fn take_while(&mut self, test: |char| -> bool) -> String
+   pub fn take_while<F>(&mut self, test: F) -> String where
+      F: Fn(char) -> bool
    {
       let mut string = String::new();
       while ! self.eof() {

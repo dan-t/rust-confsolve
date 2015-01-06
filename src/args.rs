@@ -9,7 +9,7 @@ pub use self::Command::{
    InvalidUsage
 };
 
-#[deriving(PartialEq)]
+#[derive(PartialEq)]
 pub enum Command
 {
    ResolveWuala(Path),

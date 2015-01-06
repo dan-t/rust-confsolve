@@ -21,7 +21,7 @@ pub type OrigFileName = String;
 pub type Details = String;
 
 // the details and the path of one conflicting file
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct ConflictingFile
 {
    pub details:  String,

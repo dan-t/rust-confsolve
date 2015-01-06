@@ -13,7 +13,7 @@ pub use self::UserReply::{
 
 pub type FileNum = uint;
 
-#[deriving(Show, PartialEq, Eq)]
+#[derive(Show, PartialEq, Eq)]
 pub enum UserReply 
 {
    TakeFile(FileNum),

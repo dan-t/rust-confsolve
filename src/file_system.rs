@@ -105,8 +105,10 @@ impl Files
    }
 }
 
-impl Iterator<Path> for Files 
+impl Iterator for Files
 {
+   type Item = Path;
+
    fn next(&mut self) -> Option<Path> 
    {
       loop {
