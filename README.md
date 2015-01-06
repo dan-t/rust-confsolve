@@ -4,6 +4,8 @@ confsolve
 A command line tool for resolving file synchronization conflicts introduced by
 running Dropbox or Wuala.
 
+If you prefer a Haskell version: https://github.com/dan-t/confsolve.
+
 Installation
 ============
 
