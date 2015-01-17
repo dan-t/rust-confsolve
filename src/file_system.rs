@@ -79,7 +79,7 @@ pub fn unique_file(file: Path) -> AppResult<Path>
       .ok_or(AppError::from_string(format!("Couldn't get filename_str of '{}'!", file.display()))));
 
    let mut tmp_file = file.clone();
-   for i in range(2i, 10000i) {
+   for i in range(2, 10000) {
       tmp_file.set_filename(format!("{}-{}", filename_str, i));
       if ! tmp_file.is_file() {
          return Ok(tmp_file);

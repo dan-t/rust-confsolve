@@ -70,7 +70,7 @@ impl<'a> Parser<'a>
       string
    }
 
-   pub fn take_uint(&mut self) -> Result<uint, ParseError>
+   pub fn take_uint(&mut self) -> Result<usize, ParseError>
    {
       self.push_pos();
       let mut digits = String::new();
@@ -78,15 +78,15 @@ impl<'a> Parser<'a>
          digits.push(self.take_char_or_fail());
       }
 
-      match digits.parse::<uint>() {
-         Some(uint) => {
+      match digits.parse::<usize>() {
+         Some(usize) => {
             self.pop_pos();
-            Ok(uint)
+            Ok(usize)
          }
 
          None => {
             self.pop_and_reset_pos();
-            Err("Couldn't take uint!".to_string())
+            Err("Couldn't take usize!".to_string())
          }
       }
    }

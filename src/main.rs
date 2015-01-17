@@ -1,5 +1,4 @@
 #![cfg_attr(test, allow(dead_code))]
-#![feature(associated_types)]
 
 extern crate collections;
 
@@ -57,12 +56,12 @@ fn main()
    match cmd {
       ResolveWuala(path) => {
          resolve_conflicts(Wuala, &path)
-            .unwrap_or_else(|err| { exit_with_error(format!("{}", err)); });
+            .unwrap_or_else(|err| { exit_with_error(format!("{:?}", err)); });
       }
 
       ResolveDropbox(path) => {
          resolve_conflicts(Dropbox, &path)
-            .unwrap_or_else(|err| { exit_with_error(format!("{}", err)); });
+            .unwrap_or_else(|err| { exit_with_error(format!("{:?}", err)); });
       }
 
       PrintHelp => args::print_help(),
@@ -97,7 +96,7 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
       }
 
       let num_conf_files = conf.conflicting_files.len();
-      println!("\n{}", conf);
+      println!("\n{:?}", conf);
 
       loop {
          print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");

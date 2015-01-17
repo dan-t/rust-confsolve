@@ -1,15 +1,15 @@
 pub struct Stream<'a>
 {
-   pos      :  uint,
+   pos      :  usize,
    input    :  &'a str,
-   pos_stack:  Vec<uint>
+   pos_stack:  Vec<usize>
 }
 
 impl<'a> Stream<'a>
 {
    pub fn new(input: &str) -> Stream
    {
-      Stream {pos: 0u, input: input, pos_stack: Vec::new()}
+      Stream {pos: 0, input: input, pos_stack: Vec::new()}
    }
 
    pub fn eof(&self) -> bool { self.pos >= self.input.len() }

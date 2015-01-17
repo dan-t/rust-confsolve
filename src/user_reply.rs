@@ -11,7 +11,7 @@ pub use self::UserReply::{
    Help
 };
 
-pub type FileNum = uint;
+pub type FileNum = usize;
 
 #[derive(Show, PartialEq, Eq)]
 pub enum UserReply 
@@ -26,7 +26,7 @@ pub enum UserReply
    Help
 }
 
-pub fn parse(input: &String, num_conf_files: uint) -> Option<UserReply>
+pub fn parse(input: &String, num_conf_files: usize) -> Option<UserReply>
 {
    if input.is_empty() || num_conf_files == 0 {
       return None;
@@ -81,18 +81,18 @@ pub fn parse(input: &String, num_conf_files: uint) -> Option<UserReply>
    }
 }
 
-fn valid_file_num(file_num: uint, num_confs: uint) -> bool
+fn valid_file_num(file_num: usize, num_confs: usize) -> bool
 {
    file_num > 0 && file_num <= num_confs
 }
 
-fn take_uints(parser: &mut Parser) -> Vec<uint>
+fn take_uints(parser: &mut Parser) -> Vec<usize>
 {
    let mut uints  = Vec::new();
    while ! parser.eof() {
       parser.skip_whitespace();
       match parser.take_uint() {
-         Ok(uint) => uints.push(uint),
+         Ok(usize) => uints.push(usize),
          Err(..)  => break
       }
    }

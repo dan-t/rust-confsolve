@@ -34,7 +34,7 @@ pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict
             let mut orig_file = file.clone();
             orig_file.set_filename(orig);
             let conf = ConflictingFile {details: details, path: file.clone()};
-            match confs_by_orig.entry(&orig_file) {
+            match confs_by_orig.entry(orig_file) {
                Occupied(mut entry) => entry.get_mut().push(conf),
                Vacant(entry)       => { entry.insert(vec![conf]); }
             }
