@@ -1,7 +1,8 @@
-use std::os::homedir;
+use std::env::home_dir;
+use std::path::PathBuf;
 
 /// OS specific path to the application cache directory.
-pub fn cache(app_name: &str) -> Option<Path>
+pub fn cache(app_name: &str) -> Option<PathBuf>
 {
    if app_name.is_empty() {
       return None;
@@ -11,18 +12,18 @@ pub fn cache(app_name: &str) -> Option<Path>
 }
 
 /// OS specific path for caches.
-pub fn cache_home() -> Option<Path>
+pub fn cache_home() -> Option<PathBuf>
 {
    #[cfg(unix)]
-   fn _cache_home() -> Option<Path>
+   fn _cache_home() -> Option<PathBuf>
    {
-      homedir().map(|mut dir| { dir.push(".cache"); dir })
+      home_dir().map(|mut dir| { dir.push(".cache"); dir })
    }
 
    #[cfg(windows)]
-   fn _cache_home() -> Option<Path>
+   fn _cache_home() -> Option<PathBuf>
    {
-      homedir().map(|mut dir| {
+      home_dir().map(|mut dir| {
          dir.push("Local Settings");
          dir.push("Cache");
          dir
@@ -39,7 +40,7 @@ fn tests()
    #[cfg(unix)]
    fn _tests()
    {
-      match homedir() {
+      match home_dir() {
          Some(mut dir) => {
             dir.push(".cache");
             dir.push("blub");

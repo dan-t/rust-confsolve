@@ -1,54 +1,47 @@
+use std::str::Chars;
+
 pub struct Stream<'a>
 {
-   pos      :  usize,
-   input    :  &'a str,
-   pos_stack:  Vec<usize>
+   chars: Chars<'a>,
+   pos_stack: Vec<Chars<'a>>,
 }
 
 impl<'a> Stream<'a>
 {
    pub fn new(input: &str) -> Stream
    {
-      Stream {pos: 0, input: input, pos_stack: Vec::new()}
+      Stream { 
+         chars: input.chars(),
+         pos_stack: Vec::new()
+      }
    }
 
-   pub fn eof(&self) -> bool { self.pos >= self.input.len() }
+   pub fn eof(&self) -> bool { self.chars.size_hint().0 <= 0 }
 
-   pub fn take_char_or_fail(&mut self) -> char 
+   pub fn next_char_or_fail(&mut self) -> char
    {
-      let range = self.input.char_range_at(self.pos);
-      self.pos = range.next;
-      return range.ch;
+      self.chars.next().unwrap()
    }
 
-   pub fn next_char_or_fail(&self) -> char { self.input.char_at(self.pos) }
-
-   pub fn push_pos(&mut self) { self.pos_stack.push(self.pos); }
+   pub fn push_pos(&mut self) 
+   {
+      self.pos_stack.push(self.chars.clone());
+   }
 
    pub fn pop_pos(&mut self) { self.pos_stack.pop(); }
 
-   pub fn pop_and_reset_pos(&mut self) { self.pos_stack.pop().map(|p| self.pos = p); }
-
-   #[cfg(test)]
-   pub fn consumed(&self) -> &str
-   {
-      if self.pos >= self.input.len() {
-         self.input
-      }
-      else {
-         self.input.slice_to_or_fail(&self.pos)
+   pub fn pop_and_reset_pos(&mut self) 
+   { 
+      if let Some(chars) = self.pos_stack.pop() {
+         self.chars = chars;
       }
    }
 
    #[cfg(test)]
-   pub fn unconsumed(&self) -> &str 
+   pub fn unconsumed(&self) -> String
    {
-      if self.pos >= self.input.len() {
-         ""
-      }
-      else {
-         self.input.slice_from_or_fail(&self.pos)
-      }
+      let chars = self.chars.clone();
+      chars.collect()
    }
 }
 
@@ -57,53 +50,42 @@ impl<'a> Stream<'a>
 fn tests()
 {
    let mut strm = Stream::new("qqq www ttt");
-   assert_eq!(strm.consumed(), "");
-   assert_eq!(strm.unconsumed(), "qqq www ttt");
+   assert_eq!(strm.unconsumed(), "qqq www ttt".to_string());
 
-   strm.take_char_or_fail();
-   assert_eq!(strm.consumed(), "q");
-   assert_eq!(strm.unconsumed(), "qq www ttt");
+   strm.next_char_or_fail();
+   assert_eq!(strm.unconsumed(), "qq www ttt".to_string());
 
-   strm.take_char_or_fail();
-   strm.take_char_or_fail();
-   strm.take_char_or_fail();
-   assert_eq!(strm.consumed(), "qqq ");
-   assert_eq!(strm.unconsumed(), "www ttt");
+   strm.next_char_or_fail();
+   strm.next_char_or_fail();
+   strm.next_char_or_fail();
+   assert_eq!(strm.unconsumed(), "www ttt".to_string());
 
    strm.push_pos();
-   strm.take_char_or_fail();
+   strm.next_char_or_fail();
    strm.pop_pos();
-   assert_eq!(strm.consumed(), "qqq w");
-   assert_eq!(strm.unconsumed(), "ww ttt");
+   assert_eq!(strm.unconsumed(), "ww ttt".to_string());
 
    strm.push_pos();
-   strm.take_char_or_fail();
+   strm.next_char_or_fail();
    strm.pop_and_reset_pos();
-   assert_eq!(strm.consumed(), "qqq w");
-   assert_eq!(strm.unconsumed(), "ww ttt");
+   assert_eq!(strm.unconsumed(), "ww ttt".to_string());
 
    assert_eq!(strm.next_char_or_fail(), 'w');
    assert_eq!(strm.next_char_or_fail(), 'w');
 
-   strm.take_char_or_fail();
-   strm.take_char_or_fail();
    assert_eq!(strm.next_char_or_fail(), ' ');
 
    strm.push_pos();
-   strm.take_char_or_fail();
-   strm.take_char_or_fail();
-   strm.take_char_or_fail();
-   assert_eq!(strm.consumed(), "qqq www tt");
-   assert_eq!(strm.unconsumed(), "t");
+   strm.next_char_or_fail();
+   strm.next_char_or_fail();
+   assert_eq!(strm.unconsumed(), "t".to_string());
 
    assert_eq!(strm.eof(), false);
-   strm.take_char_or_fail();
+   strm.next_char_or_fail();
    assert_eq!(strm.eof(), true);
-   assert_eq!(strm.consumed(), "qqq www ttt");
-   assert_eq!(strm.unconsumed(), "");
+   assert_eq!(strm.unconsumed(), "".to_string());
 
    strm.pop_and_reset_pos();
    assert_eq!(strm.eof(), false);
-   assert_eq!(strm.consumed(), "qqq www");
-   assert_eq!(strm.unconsumed(), " ttt");
+   assert_eq!(strm.unconsumed(), "ttt".to_string());
 }

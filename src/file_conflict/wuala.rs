@@ -29,16 +29,13 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
    try!(parser.skip("(conflicting version "));
    let version = try!(parser.take_uint());
 
-   try!(parser.skip(" from ")
-              .or(parser.skip(" from"))
-              .or(Ok(())));
-
+   let _ = parser.skip(" from ").or(parser.skip(" from"));
    let host = parser.take_while(|c| c != ')');
    try!(parser.skip(")"));
       
    if ! parser.eof() {
       let extension = parser.take_till_eof();
-      base_name.push_str(extension.as_slice());
+      base_name.push_str(extension.as_ref());
    }
 
    let details = format!("Version {} from {}", version, host);

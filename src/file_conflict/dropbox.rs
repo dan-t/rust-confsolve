@@ -36,7 +36,7 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
 
    if ! parser.eof() {
       let extension = parser.take_till_eof();
-      base_name.push_str(extension.as_slice());
+      base_name.push_str(extension.as_ref());
    }
 
    let details = format!("Version {} from {}", version, host);

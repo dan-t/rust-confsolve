@@ -1,6 +1,6 @@
-use std::os;
-use std::path::Path;
-use std::fmt::{Show, Formatter, Error};
+use std::env;
+use std::path::PathBuf;
+use std::fmt::{Display, Formatter, Error};
 
 pub use self::Command::{
    ResolveWuala,
@@ -9,16 +9,16 @@ pub use self::Command::{
    InvalidUsage
 };
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum Command
 {
-   ResolveWuala(Path),
-   ResolveDropbox(Path),
+   ResolveWuala(PathBuf),
+   ResolveDropbox(PathBuf),
    PrintHelp,
    InvalidUsage
 }
 
-impl Show for Command
+impl Display for Command
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
@@ -33,7 +33,7 @@ impl Show for Command
 
 pub fn get_command() -> Command
 {
-   parse_args(&os::args())
+   parse_args(&env::args().collect::<Vec<String>>())
 }
 
 pub fn print_help()
@@ -72,13 +72,13 @@ fn parse_args(args: &Vec<String>) -> Command
       => PrintHelp,
 
       3 if is_wuala_arg(&args[1])
-      => ResolveWuala(Path::new(&args[2])),
+      => ResolveWuala(PathBuf::from(&args[2])),
 
       3 if is_dropbox_arg(&args[1]) && is_help_arg(&args[2])
       => PrintHelp,
 
       3 if is_dropbox_arg(&args[1])
-      => ResolveDropbox(Path::new(&args[2])),
+      => ResolveDropbox(PathBuf::from(&args[2])),
 
       _ => InvalidUsage
    }
@@ -94,7 +94,7 @@ fn tests()
    let h = "-h".to_string();
    let argh = "argh".to_string();
    let dir = "dir".to_string();
-   let dir_path = Path::new("dir");
+   let dir_path = PathBuf::from("dir");
 
    assert_eq!(parse_args(&vec![confsolve.clone(), help.clone()]), PrintHelp);
    assert_eq!(parse_args(&vec![confsolve.clone(), wuala.clone(), help.clone()]), PrintHelp);

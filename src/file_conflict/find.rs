@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::vec::Vec;
+use std::path::{Path, PathBuf};
 
 use file_system::walk_files;
 use app_result::AppResult;
@@ -26,13 +27,13 @@ pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict
       Dropbox => dropbox::parse
    };
 
-   let mut files = try!(walk_files(start_dir));
-   let mut confs_by_orig: HashMap<Path, Vec<ConflictingFile>> = HashMap::new();
+   let files = try!(walk_files(start_dir));
+   let mut confs_by_orig: HashMap<PathBuf, Vec<ConflictingFile>> = HashMap::new();
    for file in files {
-      file.filename_str().map(|filename| {
+      file.file_name().and_then(|s| s.to_str()).map(|filename| {
          parse(filename).map(|(orig, details)| {
             let mut orig_file = file.clone();
-            orig_file.set_filename(orig);
+            orig_file.set_file_name(&orig);
             let conf = ConflictingFile {details: details, path: file.clone()};
             match confs_by_orig.entry(orig_file) {
                Occupied(mut entry) => entry.get_mut().push(conf),

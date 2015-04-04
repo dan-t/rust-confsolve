@@ -1,5 +1,5 @@
-use std::fmt::{Show, Formatter, Error};
-use std::path::Path;
+use std::fmt::{Display, Formatter, Error};
+use std::path::PathBuf;
 
 pub use self::ConflictType::{
    Wuala,
@@ -25,17 +25,17 @@ pub type Details = String;
 pub struct ConflictingFile
 {
    pub details:  String,
-   pub path   :  Path
+   pub path   :  PathBuf
 }
 
 // one conflict with all of its conflicting files
 pub struct Conflict
 {
-   pub original_path    :  Path,
+   pub original_path    :  PathBuf,
    pub conflicting_files:  Vec<ConflictingFile>
 }
 
-impl Show for ConflictingFile
+impl Display for ConflictingFile
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
@@ -44,12 +44,12 @@ impl Show for ConflictingFile
    }
 }
 
-impl Show for Conflict
+impl Display for Conflict
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
       try!(writeln!(f, "Conflicting file: {}", self.original_path.display()));
-      for i in range(0, self.conflicting_files.len()) {
+      for i in 0..self.conflicting_files.len() {
          try!(writeln!(f, "   ({}) {}", i + 1, self.conflicting_files[i].details));
       }
 

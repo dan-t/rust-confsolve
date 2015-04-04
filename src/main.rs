@@ -1,12 +1,12 @@
 #![cfg_attr(test, allow(dead_code))]
 
-extern crate collections;
+extern crate term;
 
-use std::os::{set_exit_status, getenv};
 use std::path::Path;
 use std::io;
-use std::io::process::Command;
-use std::io::fs::PathExtensions;
+use std::process::Command;
+use std::env;
+use path_ext::PathExt;
 
 use file_conflict::{
    ConflictType,
@@ -26,7 +26,8 @@ use user_reply::UserReply::{
 };
 
 use app_result::{
-   AppResult
+   AppResult,
+   AppError
 };
 
 use args::{
@@ -49,6 +50,7 @@ mod parser;
 mod user_reply;
 mod appdirs;
 mod args;
+mod path_ext;
 
 fn main() 
 {
@@ -56,28 +58,27 @@ fn main()
    match cmd {
       ResolveWuala(path) => {
          resolve_conflicts(Wuala, &path)
-            .unwrap_or_else(|err| { exit_with_error(format!("{:?}", err)); });
+            .unwrap_or_else(|err| { write_to_stderr(&err); });
       }
 
       ResolveDropbox(path) => {
          resolve_conflicts(Dropbox, &path)
-            .unwrap_or_else(|err| { exit_with_error(format!("{:?}", err)); });
+            .unwrap_or_else(|err| { write_to_stderr(&err); });
       }
 
       PrintHelp => args::print_help(),
 
       InvalidUsage => {
-         exit_with_error("Invalid usage!".to_string());
          args::print_help();
       }
    }
 }
 
-fn exit_with_error(error: String)
+fn write_to_stderr(err: &AppError)
 {
-   let stderr = &mut io::stderr();
-   let _ = writeln!(stderr, "confsolve: {}", error);
-   set_exit_status(1);
+   if let Some(mut stderr) = term::stderr() {
+      let _ = writeln!(&mut stderr, "confsolve: {}", err);
+   }
 }
 
 /// Finds file conflicts of type `conf_type` starting at the directory `start_dir`,
@@ -96,11 +97,12 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
       }
 
       let num_conf_files = conf.conflicting_files.len();
-      println!("\n{:?}", conf);
+      println!("\n{}", conf);
 
       loop {
          print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");
-         let mut line = try!(stdin.read_line());
+         let mut line = String::new();
+         try!(stdin.read_line(&mut line));
 
          match user_reply::parse(&line, num_conf_files) {
             Some(reply) => {
@@ -162,12 +164,12 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 /// or - if not defined - `gvimdiff -f` with the files `file1` and `file2`.
 fn show_diff(file1: &Path, file2: &Path) -> AppResult<()>
 {
-   let diff_cmd_and_args = getenv("CONFSOLVE_DIFF").unwrap_or("gvimdiff -f".to_string());
-   let diff_cmd_and_args = diff_cmd_and_args.as_slice().split(' ').collect::<Vec<&str>>();
+   let diff_cmd_and_args = env::var("CONFSOLVE_DIFF").unwrap_or("gvimdiff -f".to_string());
+   let diff_cmd_and_args = diff_cmd_and_args.split(' ').collect::<Vec<&str>>();
 
    let diff_cmd = diff_cmd_and_args[0];
 
-   let mut args = diff_cmd_and_args.iter().skip(1);
+   let args = diff_cmd_and_args.iter().skip(1);
    let mut cmd = Command::new(diff_cmd);
    for arg in args {
       cmd.arg(arg);

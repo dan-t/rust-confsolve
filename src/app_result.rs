@@ -1,6 +1,6 @@
-use std::io::IoError;
-use std::error::FromError;
-use std::fmt::{Show, Formatter, Error};
+use std::io;
+use std::convert::From;
+use std::fmt::{Display, Formatter, Error};
 
 /// The result used in the whole application.
 pub type AppResult<T> = Result<T, AppError>;
@@ -19,7 +19,7 @@ impl AppError
    }
 }
 
-impl Show for AppError
+impl Display for AppError
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
@@ -27,9 +27,9 @@ impl Show for AppError
    }
 }
 
-impl FromError<IoError> for AppError
+impl From<io::Error> for AppError
 {
-   fn from_error(err: IoError) -> AppError
+   fn from(err: io::Error) -> AppError
    {
       AppError { error: format!("{}", err) }
    }

@@ -1,4 +1,5 @@
 use parser::Parser;
+use std::iter::FromIterator;
 
 pub use self::UserReply::{
    TakeFile,
@@ -13,7 +14,7 @@ pub use self::UserReply::{
 
 pub type FileNum = usize;
 
-#[derive(Show, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum UserReply 
 {
    TakeFile(FileNum),
@@ -32,11 +33,8 @@ pub fn parse(input: &String, num_conf_files: usize) -> Option<UserReply>
       return None;
    }
 
-   let lowercase_input: String = input.chars()
-                                      .map(|c| c.to_lowercase())
-                                      .collect();
-
-   let mut parser = Parser::new(lowercase_input.as_slice());
+   let lowercase_input = String::from_iter(input.chars().map(|c| c.to_lowercase().next().unwrap_or(c)));
+   let mut parser = Parser::new(lowercase_input.as_ref());
    parser.skip_whitespace();
    match parser.take_char() {
       Err(..) => None,
