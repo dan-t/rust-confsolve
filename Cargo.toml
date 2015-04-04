@@ -1,7 +1,7 @@
 [package]
 
 name = "confsolve"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Daniel Trstenjak <daniel.trstenjak@gmail.com>"]
 license = "BSD-3-Clause"
 description = "Command line tool for resolving Dropbox/Wuala conflicts"
