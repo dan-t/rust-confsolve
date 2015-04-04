@@ -3,7 +3,7 @@
 extern crate term;
 
 use std::path::Path;
-use std::io;
+use std::io::{self, Write};
 use std::process::Command;
 use std::env;
 use path_ext::PathExt;
@@ -87,6 +87,7 @@ fn write_to_stderr(err: &AppError)
 fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 {
    let mut stdin = io::stdin();
+   let mut stdout = io::stdout();
 
    let confs = try!(file_conflict::find(conf_type, start_dir));
    for conf in confs.iter() {
@@ -101,6 +102,8 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 
       loop {
          print!("{}", "(T)ake File (NUM) | (M)ove to Trash | Show (D)iff (NUM [NUM]) | (S)kip | (Q)uit | (H)elp: ");
+         let _ = stdout.flush();
+
          let mut line = String::new();
          try!(stdin.read_line(&mut line));
 
