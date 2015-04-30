@@ -14,7 +14,7 @@ Installation
 * `cd rust-confsolve`
 * `cargo build --release`
 
-(Last successful build with: rustc 1.0.0-beta.2 (e9080ec39 2015-04-16))
+(Last successful build with: rustc 1.0.0-beta.3 (5241bf9c3 2015-04-25))
 
 The build binary will be located at `target/release/confsolve`.
 
