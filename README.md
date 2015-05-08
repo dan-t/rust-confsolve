@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dan-t/rust-confsolve.svg?branch=master)](https://travis-ci.org/dan-t/rust-confsolve)
+
 confsolve
 =========
 
