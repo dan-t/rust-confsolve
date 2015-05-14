@@ -143,15 +143,11 @@ impl<'a> Parser<'a>
 #[cfg(test)]
 fn tests()
 {
-   use term;
+   use std::io::{self, Write};
 
    match parser_tests() {
       Ok(_)    => {}
-      Err(err) => {
-         if let Some(mut stderr) = term::stderr() {
-            let _ = writeln!(&mut stderr, "Parser test error: {}", err);
-         }
-      }
+      Err(err) => writeln!(&mut io::stderr(), "Parser test error: {}", err).unwrap()
    }
 }
 

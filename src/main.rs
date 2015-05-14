@@ -1,10 +1,8 @@
 #![cfg_attr(test, allow(dead_code))]
 
-extern crate term;
-
 use std::path::Path;
 use std::io::{self, Write};
-use std::process::Command;
+use std::process::{self, Command};
 use std::env;
 use path_ext::PathExt;
 
@@ -58,12 +56,12 @@ fn main()
    match cmd {
       ResolveWuala(path) => {
          resolve_conflicts(Wuala, &path)
-            .unwrap_or_else(|err| { write_to_stderr(&err); });
+            .unwrap_or_else(|err| { exit_with_error(&err); });
       }
 
       ResolveDropbox(path) => {
          resolve_conflicts(Dropbox, &path)
-            .unwrap_or_else(|err| { write_to_stderr(&err); });
+            .unwrap_or_else(|err| { exit_with_error(&err); });
       }
 
       PrintHelp => args::print_help(),
@@ -74,11 +72,10 @@ fn main()
    }
 }
 
-fn write_to_stderr(err: &AppError)
+fn exit_with_error(err: &AppError)
 {
-   if let Some(mut stderr) = term::stderr() {
-      let _ = writeln!(&mut stderr, "confsolve: {}", err);
-   }
+   writeln!(&mut io::stderr(), "{}", err).unwrap();
+   process::exit(1);
 }
 
 /// Finds file conflicts of type `conf_type` starting at the directory `start_dir`,
