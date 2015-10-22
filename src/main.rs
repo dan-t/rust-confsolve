@@ -83,7 +83,7 @@ fn exit_with_error(err: &AppError)
 /// be handled and then executing the user command.
 fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
 {
-   let mut stdin = io::stdin();
+   let stdin = io::stdin();
    let mut stdout = io::stdout();
 
    let confs = try!(file_conflict::find(conf_type, start_dir));
