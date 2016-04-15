@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/dan-t/rust-confsolve.svg?branch=master)](https://travis-ci.org/dan-t/rust-confsolve)
+[![](http://meritbadge.herokuapp.com/confsolve)](https://crates.io/crates/confsolve)
 
 confsolve
 =========
@@ -11,12 +12,9 @@ If you prefer a Haskell version: https://github.com/dan-t/confsolve.
 Installation
 ============
 
-* get `rustc` and `cargo` from [here](<http://www.rust-lang.org/install.html>)
-* `git clone https://github.com/dan-t/rust-confsolve.git`
-* `cd rust-confsolve`
-* `cargo build --release`
+    $ cargo install confsolve
 
-The build binary will be located at `target/release/confsolve`.
+The build binary will be located at `~/.cargo/bin/confsolve`.
 
 Usage
 =====
