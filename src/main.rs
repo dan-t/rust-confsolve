@@ -4,7 +4,6 @@ use std::path::Path;
 use std::io::{self, Write};
 use std::process::{self, Command};
 use std::env;
-use path_ext::PathExt;
 
 use file_conflict::{
    ConflictType,
@@ -48,7 +47,6 @@ mod parser;
 mod user_reply;
 mod appdirs;
 mod args;
-mod path_ext;
 
 fn main() 
 {

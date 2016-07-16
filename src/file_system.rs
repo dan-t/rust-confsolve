@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use std::vec::Vec;
 use app_result::{AppResult, AppError};
 use appdirs;
-use path_ext::PathExt;
 
 use std::fs::{
    read_dir,
