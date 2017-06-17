@@ -12,16 +12,16 @@ use std::fs::{
 };
 
 /// Returns an iterator which will recursively walk the files starting at
-/// `start_dir`. This will perform iteration in some top-down order. 
+/// `start_dir`. This will perform iteration in some top-down order.
 /// The contents of unreadable subdirectories are ignored.
-pub fn walk_files(start_dir: &Path) -> AppResult<Files> 
+pub fn walk_files(start_dir: &Path) -> AppResult<Files>
 {
    match read_dir(start_dir) {
       Ok(contents) => {
          let paths = contents
             .filter_map(|c| c.ok().map(|e| e.path()))
             .collect::<Vec<PathBuf>>();
-         
+
          Ok(Files::new(paths))
       }
 
@@ -32,25 +32,23 @@ pub fn walk_files(start_dir: &Path) -> AppResult<Files>
 /// Moves `file` into the trash directory of confsolve.
 pub fn move_to_trash(file: &Path) -> AppResult<()>
 {
-   let filename = try!(
-      file.file_name()
-         .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display())))
-   );
+   let filename = file.file_name()
+       .ok_or(AppError::from_string(format!("Couldn't get filename from path '{}'!", file.display())))?;
 
-   let mut trash_file = try!(trash_dir());
+   let mut trash_file = trash_dir()?;
    trash_file.push(filename);
-   let trash_file = try!(unique_file(&trash_file));
+   let trash_file = unique_file(&trash_file)?;
 
-   try!(copy(file, &trash_file));
-   try!(remove_file(file));
+   copy(file, &trash_file)?;
+   remove_file(file)?;
 
    Ok(())
 }
 
 pub fn move_file(from_file: &Path, to_file: &Path) -> AppResult<()>
 {
-   try!(copy(from_file, to_file));
-   try!(remove_file(from_file));
+   copy(from_file, to_file)?;
+   remove_file(from_file)?;
 
    Ok(())
 }
@@ -58,12 +56,12 @@ pub fn move_file(from_file: &Path, to_file: &Path) -> AppResult<()>
 /// Returns the trash directory of confsolve, where all deleted/moved files are put into.
 pub fn trash_dir() -> AppResult<PathBuf>
 {
-   let mut dir = try!(appdirs::cache("confsolve")
-      .ok_or(AppError::from_string(format!("Couldn't get cache directory!"))));
+   let mut dir = appdirs::cache("confsolve")
+      .ok_or(AppError::from_string(format!("Couldn't get cache directory!")))?;
 
    dir.push("trash");
    if ! dir.is_dir() {
-      try!(create_dir_all(&dir));
+      create_dir_all(&dir)?;
    }
 
    Ok(dir)
@@ -77,11 +75,10 @@ pub fn unique_file(file: &Path) -> AppResult<PathBuf>
       return Ok(file_buf);
    }
 
-   let filename_str = try!(file_buf.file_name()
+   let filename_str = file_buf.file_name()
       .and_then(|f| f.to_str())
       .map(|f| f.to_string())
-      .ok_or(AppError::from_string(format!("Couldn't get filename_str of '{}'!", file_buf.display())))
-   );
+      .ok_or(AppError::from_string(format!("Couldn't get filename_str of '{}'!", file_buf.display())))?;
 
    for i in 2..10000 {
       file_buf.set_file_name(&format!("{}-{}", filename_str, i));
@@ -94,14 +91,14 @@ pub fn unique_file(file: &Path) -> AppResult<PathBuf>
 }
 
 /// An iterator which walks over Files
-pub struct Files 
+pub struct Files
 {
    stack: Vec<PathBuf>,
 }
 
-impl Files 
+impl Files
 {
-   fn new(paths: Vec<PathBuf>) -> Files 
+   fn new(paths: Vec<PathBuf>) -> Files
    {
       let mut files = Files {stack: Vec::with_capacity(10_000)};
       files.stack.extend(paths.into_iter());
@@ -113,7 +110,7 @@ impl Iterator for Files
 {
    type Item = PathBuf;
 
-   fn next(&mut self) -> Option<PathBuf> 
+   fn next(&mut self) -> Option<PathBuf>
    {
       loop {
          match self.stack.pop() {

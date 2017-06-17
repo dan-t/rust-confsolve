@@ -48,7 +48,7 @@ mod user_reply;
 mod appdirs;
 mod args;
 
-fn main() 
+fn main()
 {
    let cmd = args::get_command();
    match cmd {
@@ -84,7 +84,7 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
    let stdin = io::stdin();
    let mut stdout = io::stdout();
 
-   let confs = try!(file_conflict::find(conf_type, start_dir));
+   let confs = file_conflict::find(conf_type, start_dir)?;
    for conf in confs.iter() {
       if ! conf.original_path.is_file() {
          println!("\nFound conflicts for the file '{}', but the file itself is missing! Skipping it.",
@@ -100,7 +100,7 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
          let _ = stdout.flush();
 
          let mut line = String::new();
-         try!(stdin.read_line(&mut line));
+         stdin.read_line(&mut line)?;
 
          match user_reply::parse(&line, num_conf_files) {
             Some(reply) => {
@@ -109,40 +109,40 @@ fn resolve_conflicts(conf_type: ConflictType, start_dir: &Path) -> AppResult<()>
                      let ref take_file = conf.conflicting_files[num - 1].path;
                      for conf_file in conf.conflicting_files.iter() {
                         if conf_file.path != *take_file {
-                           try!(move_to_trash(&conf_file.path));
+                           move_to_trash(&conf_file.path)?;
                         }
                      }
 
-                     try!(move_to_trash(&conf.original_path));
-                     try!(move_file(take_file, &conf.original_path));
+                     move_to_trash(&conf.original_path)?;
+                     move_file(take_file, &conf.original_path)?;
 
                      break;
                   }
 
                   MoveToTrash => {
                      for conf_file in conf.conflicting_files.iter() {
-                        try!(move_to_trash(&conf_file.path));
+                        move_to_trash(&conf_file.path)?;
                      }
 
                      break;
                   }
 
                   ShowDiff => {
-                     try!(show_diff(&conf.original_path, &conf.conflicting_files[0].path));
+                     show_diff(&conf.original_path, &conf.conflicting_files[0].path)?;
                   }
 
                   ShowDiffWith(num) => {
-                     try!(show_diff(&conf.original_path, &conf.conflicting_files[num - 1].path));
+                     show_diff(&conf.original_path, &conf.conflicting_files[num - 1].path)?;
                   }
 
                   ShowDiffBetween(num1, num2) => {
-                     try!(show_diff(&conf.conflicting_files[num1 - 1].path,
-                                    &conf.conflicting_files[num2 - 1].path));
+                     show_diff(&conf.conflicting_files[num1 - 1].path,
+                               &conf.conflicting_files[num2 - 1].path)?;
                   }
 
                   Skip => { break; }
                   Quit => { return Ok(()); }
-                  Help => try!(print_runtime_help())
+                  Help => print_runtime_help()?
                }
             }
 
@@ -176,13 +176,13 @@ fn show_diff(file1: &Path, file2: &Path) -> AppResult<()>
    cmd.arg(file1);
    cmd.arg(file2);
 
-   try!(cmd.output());
+   cmd.output()?;
    Ok(())
 }
 
 fn print_runtime_help() -> AppResult<()>
 {
-   let trash_dir = try!(trash_dir());
+   let trash_dir = trash_dir()?;
    let dir_str   = trash_dir.display();
 
    println!("

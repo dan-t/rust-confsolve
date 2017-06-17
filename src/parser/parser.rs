@@ -160,16 +160,16 @@ fn parser_tests() -> Result<(), ParseError>
    parser.skip_whitespace();
    assert_eq!(parser.unconsumed(), "ssss 21 qqq aswe ");
 
-   try!(parser.skip("ss"));
+   parser.skip("ss")?;
    assert_eq!(parser.unconsumed(), "ss 21 qqq aswe ");
 
-   try!(parser.skip("ss"));
+   parser.skip("ss")?;
    assert_eq!(parser.unconsumed(), " 21 qqq aswe ");
 
    parser.skip_whitespace();
    assert_eq!(parser.unconsumed(), "21 qqq aswe ");
 
-   assert_eq!(try!(parser.take_uint()), 21);
+   assert_eq!(parser.take_uint()?, 21);
    assert_eq!(parser.unconsumed(), " qqq aswe ");
 
    parser.skip_whitespace();
@@ -179,7 +179,7 @@ fn parser_tests() -> Result<(), ParseError>
    parser.skip_while(|c| c.is_whitespace());
    assert_eq!(parser.unconsumed(), "aswe ");
 
-   assert_eq!(try!(parser.take_char()), 'a');
+   assert_eq!(parser.take_char()?, 'a');
    assert_eq!(parser.unconsumed(), "swe ");
 
    assert_eq!(parser.eof(), false);

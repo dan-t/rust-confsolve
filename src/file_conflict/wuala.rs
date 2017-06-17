@@ -5,7 +5,7 @@ use parser::{Parser, ParseError};
 //
 //    `<base_name> (conflicting version <version> from <host>).<extension>`
 //
-// e.g: 
+// e.g:
 //
 //    `x_original (conflicting version 5 from blub).txt`
 //
@@ -26,13 +26,13 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
    // drops the whitespace before the '('
    base_name.pop();
 
-   try!(parser.skip("(conflicting version "));
-   let version = try!(parser.take_uint());
+   parser.skip("(conflicting version ")?;
+   let version = parser.take_uint()?;
 
    let _ = parser.skip(" from ").or(parser.skip(" from"));
    let host = parser.take_while(|c| c != ')');
-   try!(parser.skip(")"));
-      
+   parser.skip(")")?;
+
    if ! parser.eof() {
       let extension = parser.take_till_eof();
       base_name.push_str(extension.as_ref());

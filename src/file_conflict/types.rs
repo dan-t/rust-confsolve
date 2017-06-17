@@ -48,9 +48,9 @@ impl Display for Conflict
 {
    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
    {
-      try!(writeln!(f, "Conflicting file: {}", self.original_path.display()));
+      writeln!(f, "Conflicting file: {}", self.original_path.display())?;
       for i in 0..self.conflicting_files.len() {
-         try!(writeln!(f, "   ({}) {}", i + 1, self.conflicting_files[i].details));
+         writeln!(f, "   ({}) {}", i + 1, self.conflicting_files[i].details)?;
       }
 
       Ok(())

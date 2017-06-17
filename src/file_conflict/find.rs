@@ -27,7 +27,7 @@ pub fn find(conf_type: ConflictType, start_dir: &Path) -> AppResult<Vec<Conflict
       Dropbox => dropbox::parse
    };
 
-   let files = try!(walk_files(start_dir));
+   let files = walk_files(start_dir)?;
    let mut confs_by_orig: HashMap<PathBuf, Vec<ConflictingFile>> = HashMap::new();
    for file in files {
       file.file_name().and_then(|s| s.to_str()).map(|filename| {

@@ -5,7 +5,7 @@ use parser::{Parser, ParseError};
 //
 //    `<base_name> (<host>'s conflicted copy <date>).txt`
 //
-// e.g: 
+// e.g:
 //
 //    `x_original (blub's conflicted copy 2011-04-30).txt`
 //
@@ -26,13 +26,13 @@ fn parse_internal(file_name: &str) -> Result<(OrigFileName, Details), ParseError
    // drops the whitespace before the '('
    base_name.pop();
 
-   try!(parser.skip("("));
+   parser.skip("(")?;
    let host = parser.take_while(|c| c != '\'');
 
-   try!(parser.skip("'s conflicted copy "));
+   parser.skip("'s conflicted copy ")?;
 
    let version = parser.take_while(|c| c != ')');
-   try!(parser.skip(")"));
+   parser.skip(")")?;
 
    if ! parser.eof() {
       let extension = parser.take_till_eof();
