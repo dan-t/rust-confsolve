@@ -40,7 +40,7 @@ fn tests()
    #[cfg(unix)]
    fn _tests()
    {
-      match home_dir() {
+      match dirs::home_dir() {
          Some(mut dir) => {
             dir.push(".cache");
             dir.push("blub");
