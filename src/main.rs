@@ -1,5 +1,7 @@
 #![cfg_attr(test, allow(dead_code))]
 
+extern crate dirs;
+
 use std::path::Path;
 use std::io::{self, Write};
 use std::process::{self, Command};

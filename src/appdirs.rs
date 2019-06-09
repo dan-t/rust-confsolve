@@ -1,5 +1,5 @@
-use std::env::home_dir;
 use std::path::PathBuf;
+use dirs;
 
 /// OS specific path to the application cache directory.
 pub fn cache(app_name: &str) -> Option<PathBuf>
@@ -17,13 +17,13 @@ pub fn cache_home() -> Option<PathBuf>
    #[cfg(unix)]
    fn _cache_home() -> Option<PathBuf>
    {
-      home_dir().map(|mut dir| { dir.push(".cache"); dir })
+      dirs::home_dir().map(|mut dir| { dir.push(".cache"); dir })
    }
 
    #[cfg(windows)]
    fn _cache_home() -> Option<PathBuf>
    {
-      home_dir().map(|mut dir| {
+      dirs::home_dir().map(|mut dir| {
          dir.push("Local Settings");
          dir.push("Cache");
          dir

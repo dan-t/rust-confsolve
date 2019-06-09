@@ -7,3 +7,6 @@ license = "BSD-3-Clause"
 description = "Command line tool for resolving Dropbox/Wuala conflicts"
 repository = "https://github.com/dan-t/rust-confsolve"
 readme = "README.md"
+
+[dependencies]
+dirs = "2.0.1"
